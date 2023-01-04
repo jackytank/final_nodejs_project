@@ -1,5 +1,6 @@
 $(document).ready(function () {
   //load init
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   init();
   // demo event keyup input zipcode
   $('input[name="zip_code"]').on('keyup', function () {
@@ -34,12 +35,12 @@ $(document).ready(function () {
   });
 
   // event left menu, sidenav
-  var status_sidenav = true;
-  var status_sidenav_mobile = false;
-  var status_calendar = false;
+  let status_sidenav = true;
+  let status_sidenav_mobile = false;
+  let status_calendar = false;
   $(window).resize(function () {
-    let width = window.innerWidth;
-    let height = window.innerHeight;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
     if (width > 992) {
       //reset style left-menu
       $('.left-menu').css('margin-right', '');
@@ -73,7 +74,7 @@ $(document).ready(function () {
 
   if ($('.btn-toggle-sidenav').length > 0) {
     //fixed btn_toggle_sidenav top-left
-    var old_top_btn_toggle_sidenav = $('.btn-toggle-sidenav').css('top').replace(/[^-\d\.]/g, '');
+    const old_top_btn_toggle_sidenav = $('.btn-toggle-sidenav').css('top').replace(/[^-\d\.]/g, '');
     $(window).scroll(function (e) {
       $('.btn-toggle-sidenav').css('top', parseInt(old_top_btn_toggle_sidenav) + $(this).scrollTop());
     });
@@ -135,8 +136,8 @@ $(document).ready(function () {
 })
 function init() {
   //default open collapse
-  let w = window.innerWidth;
-  let h = window.innerHeight;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
 
   if (w > 992) {
     $('.left-menu-item .collapse').collapse('show');
@@ -154,10 +155,10 @@ function init() {
   }
 }
 function getCurrentDate() {
-  let dateObj = new Date();
-  let month = dateObj.getMonth() + 1;
-  let day = String(dateObj.getDate()).padStart(2, '0');
-  let year = dateObj.getFullYear();
+  const dateObj = new Date();
+  const month = dateObj.getMonth() + 1;
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const year = dateObj.getFullYear();
   let output = '';
   if (month < 10) {
     output = year + '-' + '0' + month + '-' + day;

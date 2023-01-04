@@ -6,7 +6,7 @@
 
 import logger from '../winston';
 import * as http from 'http';
-import {AddressInfo} from 'net';
+import { AddressInfo } from 'net';
 import app from '../server';
 
 /**
@@ -14,17 +14,14 @@ import app from '../server';
  */
 const normalizePort = (val: any) => {
   const normalizedPort = parseInt(val, 10);
-
   if (isNaN(normalizedPort)) {
     // named pipe
     return val;
   }
-
   if (normalizedPort >= 0) {
     // port number
     return normalizedPort;
   }
-
   return false;
 };
 
@@ -52,20 +49,16 @@ function onError(error: any) {
   }
 
   const bind =
-    typeof port === 'string'
-      ? `Pipe ${port}`
-      : `Port ${(<number>port).toString()}`;
+    typeof port === 'string' ? `Pipe ${port}` : `Port ${(<number>port).toString()}`;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
       console.error(`${bind} requires elevated privileges`);
       process.exit(1);
-      break;
     case 'EADDRINUSE':
       console.error(`${bind} is already in use`);
       process.exit(1);
-      break;
     default:
       throw error;
   }
@@ -77,8 +70,7 @@ function onError(error: any) {
 
 function onListening() {
   const addr = <AddressInfo>server.address();
-  const bind =
-    typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port.toString()}`;
+  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port.toString()}`;
   console.log(`Listening on ${bind}`);
   logger.info(`Listening on ${bind}`);
 }
