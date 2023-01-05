@@ -3,97 +3,78 @@
  * Login controller
  */
 import * as logger from '../utils/logger';
-import {Request, Response} from 'express';
-import {messages} from '../constants';
-import {getCustomRepository} from 'typeorm';
-import {UserRepository} from '../repositories/user.repository';
+import { Request, Response } from 'express';
+import { UserService } from '../services/user.services';
+import { messages } from '../constants';
 
 /**
  * GET login
  */
 export const login = (req: Request, res: Response) => {
-  res.render('login/index', {
-    layout: 'layout/loginLayout',
-    message: '',
-    username: '',
-  });
+    const flashMessage = req.flash('message')[0];
+    res.render('login/index', {
+        layout: 'layout/loginLayout',
+        message: flashMessage ?? '',
+        email: ''
+    });
 };
 
 /**
  * POST login
  */
 export const auth = async (req: Request, res: Response) => {
-  try {
-    // get a User repository to perform operations with User
-    const userRepository = getCustomRepository(UserRepository);
-
-    // load a post by a given post id
-    const user = await userRepository.verifyCredentials(
-      req.body.username,
-      req.body.password,
-    );
-
-    if (!user) {
-      // write log
-      logger.logInfo(
-        req,
-        `Failed login attempt: name(${req.body.username || ''})`,
-      );
-
-      res.render('login/index', {
-        layout: 'layout/loginLayout',
-        username: req.body.username,
-        message: 'Message',
-      });
+    const { redirect } = req.query;
+    const { email, password } = req.body;
+    try {
+        // get a User repository to perform operations with User
+        const userService = new UserService();
+        // load a post by a given post id
+        const user = await userService.verifyCredentials(email, password);
+        if (!user) {
+            // write log
+            logger.logInfo(req, `Failed login attempt: username(${email || ''}, password(${password || ''})`,
+            );
+            res.render('login/index', {
+                layout: 'layout/loginLayout',
+                email: email,
+                message: messages.ECL017,
+            });
+        }
+        if (user) {
+            // save user info into session
+            (req.session as Express.Session).user = { ...user, };
+            req.user.isAuthorized = true;
+            // write log
+            logger.logInfo(req, `User id(${user!.id}) logged in successfully.`);
+            // If [ログイン] clicked, then redirect to TOP page
+            if (redirect !== undefined && redirect.length! > 0 && redirect !== '/') {
+                res.redirect(decodeURIComponent(redirect!.toString()));
+            } else {
+                res.redirect('/');
+            }
+        }
+    } catch (err) {
+        // write log
+        logger.logInfo(req, `Failed login attempt: email(${email || ''})`);
+        res.render('login/index', {
+            layout: 'layout/loginLayout',
+            email: email,
+            message: messages.ECL017,
+        });
     }
-
-    // save user info into session
-    (req.session as Express.Session).user = {
-      ...user,
-    };
-
-    // write log
-    logger.logInfo(req, `User id(${user!.id}) logged in successfully.`);
-
-    // If [ログイン] clicked, then redirect to TOP page
-    if (
-      req.query.redirect !== undefined &&
-      req.query.redirect.length! > 0 &&
-      req.query.redirect !== '/'
-    ) {
-      res.redirect(decodeURIComponent(req.query.redirect!.toString()));
-    } else {
-      res.redirect('/');
-    }
-  } catch (err) {
-    // write log
-    logger.logInfo(
-      req,
-      `Failed login attempt: name(${req.body.username || ''})`,
-    );
-
-    res.render('login/index', {
-      layout: 'layout/loginLayout',
-      username: req.body.username,
-      message: 'Test',
-    });
-  }
 };
-
 /**
  * GET logout
  */
 export const logout = async (req: Request, res: Response) => {
-  req.user.destroy();
-
-  // write log
-  logger.logInfo(req, 'User logged out successfully.');
-
-  let redirectURL = '/login';
-  if (req.query.redirect !== undefined) {
-    redirectURL += `?redirect=${encodeURIComponent(
-      req.query.redirect!.toString(),
-    )}`;
-  }
-  res.redirect(redirectURL);
+    req.user.destroy();
+    req.session.destroy();
+    const { redirect } = req.query;
+    // write log
+    logger.logInfo(req, 'User logged out successfully.');
+    let redirectURL = '/login';
+    if (redirect !== undefined) {
+        redirectURL += `?redirect=${encodeURIComponent(redirect!.toString())}`;
+    }
+    res.redirect(redirectURL);
 };

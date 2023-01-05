@@ -1,39 +1,19 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, DeleteDateColumn } from 'typeorm';
 
 @Entity()
 export class Base {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column('tinyint')
-  deleted: number;
+    @Column({ name: 'created_date', type: 'date', nullable: false })
+    @CreateDateColumn()
+    created_date: Date;
 
-  @Column({
-    type: 'varchar',
-    length: 100,
-    name: 'created_by',
-  })
-  createdBy: string;
+    @Column({ name: 'updated_date', type: 'date', nullable: false })
+    @UpdateDateColumn()
+    updated_date: Date;
 
-  @Column({
-    name: 'created_at',
-  })
-  createdAt: Date;
-
-  @Column({
-    type: 'varchar',
-    length: 100,
-    name: 'updated_by',
-  })
-  updatedBy: string;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-  })
-  updatedAt: Date;
+    @Column({ name: 'deleted_date', type: 'date', nullable: true })
+    @DeleteDateColumn()
+    deleted_date: Date;
 }

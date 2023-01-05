@@ -1,5 +1,5 @@
 import  {createLogger, format} from 'winston';
-import moment = require('moment-timezone');
+import moment from 'moment-timezone';
 const { combine, printf} = format;
 
 /**

@@ -1,5 +1,5 @@
 import winston from '../winston';
-import {Request} from 'express';
+import { Request } from 'express';
 import requestIp from 'request-ip';
 
 /**
@@ -22,18 +22,17 @@ export const logInfo = async (req: Request, message?: string) => {
  * @param error
  */
 export const logError = async (req: Request, error: string) => {
-  winston.error(
-    `[${requestIp.getClientIp(req) || ''}][${req.sessionID}][${(req.user
-      ? req.user.id
-      : '') || ''}][Route: ${req.originalUrl || ''}][${req.method ||
-      ''}][${req.protocol || ''}][${error}]`,
+  winston.error(`[${requestIp.getClientIp(req) || ''}][${req.sessionID}][${(req.user
+    ? req.user.id
+    : '') || ''}][Route: ${req.originalUrl || ''}][${req.method ||
+    ''}][${req.protocol || ''}][${error}]`,
   );
 };
 
 /**
  * Write warning log
- * @param req
- * @param error
+ * @param req access request object
+ * @param message accept message string
  */
 export const logWarning = async (req: Request, message: string) => {
   winston.log(
