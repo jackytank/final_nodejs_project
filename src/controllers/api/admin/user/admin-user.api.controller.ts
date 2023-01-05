@@ -59,9 +59,14 @@ class AdminUserApiController {
             if (name || enteredDateFrom || enteredDateTo) {
                 req.session.searchQuery = req.query;
                 data = await this.userService.searchData(req.query);
+                const checkDup = (a: User[]) => {
+                    return _.uniqBy(a, 'name').length !== a.length;
+                };
                 return res.status(200).json(data);
             }
             return res.status(200).json({});
+            // data = await this.userService.searchData(req.query);
+            // return res.status(200).json(data);
         } catch (error) {
             return res.status(500).json({ message: error.message, status: 500 });
         }

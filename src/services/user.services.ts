@@ -354,7 +354,7 @@ export class UserService {
         if (!_.isNil(name)) {
             b.andWhere('user.name LIKE :name', { name: `%${name}%` });
         }
-        b.andWhere('user.deleted_date = :isDeleted', { isDeleted: false })
+        b.andWhere('user.deleted_date IS NULL')
         b.orderBy('user.name', 'ASC');
         return b;
     }

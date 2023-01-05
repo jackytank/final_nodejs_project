@@ -24,6 +24,7 @@ $(function () {
         importCsvFormEl = $('#importCsvForm');
         importCsvInputEl = $('#importCsvInput');
         importCsvBtnEl = $('#importCsvBtn');
+        exportCsvBtnEl = $('#exportCsvBtn');
         importCsvFileSizeEl = $('#fileSize');
 
         enteredDateFromStr = 'enteredDateFrom';
@@ -74,9 +75,10 @@ $(function () {
                 },
                 zeroRecords: "No Record",
             },
+            pageLength: 10,
             ordering: false,
             searching: false,
-            responsive: true,
+            responsive: false,
             processing: true,
             serverSide: true,
             dom: "<'row mb-2'<'col-sm-12 col-md-8'p>>" +
@@ -95,6 +97,44 @@ $(function () {
                 error: function (xhr, error, code) {
                     openErrorModalWithMsg(null, null, null, null, 'Datatable AJAX request error!', null, false);
                 }
+            },
+            drawCallback: function (oSettings) {
+                const api = this.api();
+                let isDataEmpty = false;
+                let isDataLessThanPageLength = false;
+                if (isNaN(oSettings._iRecordsDisplay) || oSettings._iRecordsDisplay === 0) {
+                    // if filter result is NaN on datatable init, hide pagination
+                    // console.log(`check NaN run`);
+                    // console.log(`recordDisplay: ${oSettings._iRecordsDisplay}, displayLength: ${oSettings._iDisplayLength}`);
+                    isDataEmpty = true;
+                }
+                if (!isNaN(oSettings._iRecordsDisplay)) {
+                    // if filter result is less than display length (set 10 in pageLength datatable above), hide pagination else show pagination
+                    if (oSettings._iRecordsDisplay < oSettings._iDisplayLength) {
+                        // console.log(`check < run`);
+                        // console.log(`recordDisplay: ${oSettings._iRecordsDisplay}, displayLength: ${oSettings._iDisplayLength}`);
+                        isDataLessThanPageLength = true;
+                    }
+                }
+
+                // console.log(`isHide: ${isHide}`);
+                // for hiding pagination
+                if (isDataEmpty || isDataLessThanPageLength) {
+                    $(api.table().container()).find('.dataTables_paginate').hide();
+
+                } else {
+                    $(api.table().container()).find('.dataTables_paginate').show();
+                }
+
+                // for hiding header and export csv btn
+                if (isDataEmpty) {
+                    exportCsvBtnEl.hide();
+                    usersTableElement.find('thead tr th span').hide();
+                } else {
+                    exportCsvBtnEl.show();
+                    usersTableElement.find('thead tr th span').show();
+                }
+                console.log(oSettings);
             },
             columnDefs: [
                 {
@@ -151,6 +191,15 @@ $(function () {
                 },
             ],
         });
+
+        // const rowCount = usersTableElement.DataTable().rows().count();
+        // if (rowCount === 0) {
+        //     usersTableElement.on('xhr.dt', function (e, setting, json, xhr) {
+        //         if (json.recordsFiltered === 0 || json.recordsFiltered == null) {
+        //             // $('#usersTable').hide();
+        //         }
+        //     });
+        // }
     }
     function validation() {
         // add validate methods - START
