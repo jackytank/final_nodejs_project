@@ -1,3 +1,4 @@
+import { POS_NUM } from './../../../constants';
 import { CustomApiResult } from './../../../customTypings/express/index';
 import { Request, Response } from 'express';
 import dayjs from 'dayjs';
@@ -97,7 +98,7 @@ class AdminUserController {
         const user: User = Object.assign(new User(), { id, name, username, email, role });
         // if role from req is not user, check if user is admin or manager if neither throw 403
         if (role !== POS_NAME.GE_DI + '') {
-            if (req.session.user?.position_id !== POS_NAME.GR_LE && req.session.user?.position_id !== POS_NAME.LE) {
+            if (req.session.user?.position_id !== POS_NUM.GR_LE && req.session.user?.position_id !== POS_NUM.LE) {
                 req.flash('message', 'You are not authorized to do this action!');
                 return res.redirect(req.originalUrl ?? `/admin/users/edit/${id.trim()}`);
             }

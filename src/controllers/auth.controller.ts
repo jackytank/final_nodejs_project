@@ -5,6 +5,7 @@
 import * as logger from '../utils/logger';
 import { Request, Response } from 'express';
 import { UserService } from '../services/user.services';
+import { messages } from '../constants';
 
 /**
  * GET login
@@ -36,7 +37,7 @@ export const auth = async (req: Request, res: Response) => {
             res.render('login/index', {
                 layout: 'layout/loginLayout',
                 email: email,
-                message: 'Email or password is incorrect',
+                message: messages.ECL017,
             });
         }
         if (user) {
@@ -58,7 +59,7 @@ export const auth = async (req: Request, res: Response) => {
         res.render('login/index', {
             layout: 'layout/loginLayout',
             email: email,
-            message: 'Error when login!',
+            message: messages.ECL017,
         });
     }
 };

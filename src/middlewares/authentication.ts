@@ -17,18 +17,15 @@ export const authentication = async (req: Request, res: Response, next: NextFunc
                 // Audit log every action
                 logger.logInfo(req);
             }
-
             next();
         } catch (err) {
             if (err.response && err.response.status === UNAUTHORIZED) {
                 logger.logWarning(req, err);
-                res.redirect(
-                    `/logout?redirect=${encodeURIComponent(req.originalUrl)}`,
-                );
+                res.redirect(`/logout?redirect=${encodeURIComponent(req.originalUrl)}`);
                 return;
             } else {
                 next();
             }
         }
     }
-};
+};;

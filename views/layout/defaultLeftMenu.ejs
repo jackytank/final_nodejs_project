@@ -7,10 +7,12 @@
 				<a href="/admin/users/list" class="list-group-item list-group-item-action py-2 ripple <% if(typeof activeTab !== 'undefined') { %> <%= activeTab === 'listUserTab'? 'active':'' %> <% } %> ">
 					<i class="fas fa-users fa-fw me-3"></i><span>User List</span>
 				</a>
-				<!-- 2 -->
+				<% if (loginUser.position_id === 0) { %> 
+				<!-- 2. Only show for General Director (0)-->
 				<a href="/admin/divisions/list" class="list-group-item list-group-item-action py-2 ripple <% if(typeof activeTab !== 'undefined') { %> <%= activeTab === 'listDivisionTab'? 'active':'' %> <% } %> ">
 					<i class="fas fa-building fa-fw me-3"></i><span>Division List</span>
 				</a>
+				<% } %>
 			</div>
 		</div>
 	</nav>

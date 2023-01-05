@@ -4,7 +4,7 @@
 		<!-- Container wrapper -->
 		<div class="container-fluid">
 			<!-- Toggle button -->
-			<button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
 				<i class="fas fa-bars"></i>
 			</button>
 
@@ -18,7 +18,7 @@
 				<!-- Avatar -->
 				<% if(loginUser.name){ %>
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#" id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+					<a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						<span><%= loginUser.name %></span>
 						<div class="vr mx-2"></div>
 						<span id="user-role" data-user-position="<%= loginUser.position_id %>">Position: <%= loginUser.position_id %> </span>

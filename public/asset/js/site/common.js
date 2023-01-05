@@ -8,17 +8,25 @@ function PAGINATION_INFO(START, END, TOTAL) {
   return `${TOTAL} 件中 ${START} から ${END} まで表示`;
 }
 const labels = {
-  NEXT: '次',
-  PREVIOUS: '前',
-  LAST: '最終',
-  FIRST: '先頭'
+  // FIRST: '先頭',
+  // PREVIOUS: '前',
+  // NEXT: '次',
+  // LAST: '最終',
+  FIRST: "最初",
+  PREVIOUS: "前へ",
+  NEXT: "次へ",
+  LAST: "最終",
 };
 
 const messages = {
   ECL010: 'データが選択されていません。',
   DISABLED_POPUP_INFORM: 'ポップアップの自動表示はデフォルトでブロックされています。このサイトを例外リストに追加してください。',
+  ECL001: (field) => {
+    return `${field}は必須項目です。`;
+  },
   ECL002: '{0}は「{1}」文字以下で入力してください。（現在「{2}」文字）',
   ECL009: '開始日に終了日以降の日付を入力して検索することはできません。',
+  ECL017: '入力した情報のいずれかの情報が間違っています。確認してから再度試してください。',
   ECL021: 'ファイル形式が誤っています。CSVを選択してください。',
   ECL023: 'ファイルのサイズ制限10MBを超えています。',
 };

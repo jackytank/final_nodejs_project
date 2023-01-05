@@ -13,11 +13,16 @@ $(function () {
      * Form validation
      */
     function init() {
-         // if don't specify the scope (let, const) the variable will be global
-        username = $('#username');
+        // if don't specify the scope (let, const) the variable will be global
+        email = $('#email');
         password = $('#password');
         submitBtn = $('#submitBtn');
         errorMessage = $('#errorMessage');
+
+        // for Japanese messages
+        console.log(messages.ECL001('Email'));
+        document.querySelector('#emailRequired').textContent = messages.ECL001('Email');
+        document.querySelector('#passwordRequired').textContent = messages.ECL001('Password');
     }
 
     function formValidation() {
@@ -52,17 +57,17 @@ $(function () {
     }
 
     function events() {
-        username.on('keyup', function () {
-            $('#errorMessage').html('');
-        });
-        password.on('keyup', function () {
-            $('#errorMessage').html('');
-        });
-        setTimeout(() => {
-            document.querySelectorAll('.message').forEach(function (el) {
-                el.innerHTML = ''; //Clears the innerHTML
-            });
-        }, 3000);
+        // email.on('keyup', function () {
+        //     $('#errorMessage').html('');
+        // });
+        // password.on('keyup', function () {
+        //     $('#errorMessage').html('');
+        // });
+        // setTimeout(() => {
+        //     document.querySelectorAll('.message').forEach(function (el) {
+        //         el.innerHTML = ''; //Clears the innerHTML
+        //     });
+        // }, 3000);
 
     }
 });

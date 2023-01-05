@@ -1,51 +1,54 @@
 <main class="container">
-    <section class="vh-100">
-        <div class="container py-5 h-100">
-            <!-- start row -->
-            <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="col col-xl-5">
-                    <!-- start card -->
-                    <div class="card" style="border-radius: 1rem;">
-                        <div class="row g-0">
-                            <div class="d-flex align-items-center">
-                                <div class="card-body p-4 p-lg-5 text-black">
-                                    <!-- start form -->
-                                    <form method="post" class="mb-2 needs-validation" id="loginForm" novalidate>
-                                        <div class="d-flex align-items-center mb-3 pb-1">
-                                            <img src="/asset/images/bris.png" height="50" alt="" loading="lazy" />
-                                            <span class="h1 fw-bold mb-0">Briswell Vietnam</span>
-                                        </div>
-                                        <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account</h5>
-                                        <div class="form-outline mb-4">
-                                            <input type="text" id="email" class="form-control form-control-lg" maxlength="255" name="email" value="<%= email%>" required>
-                                            <label class="form-label" for="email">Email</label>
-                                            <div class="invalid-feedback">Email is required.</div>
-                                        </div>
-                                        <div class="form-outline mb-4">
-                                            <input type="password" id="password" class="form-control form-control-lg" name="password" maxlength="20" required>
-                                            <label class="form-label" for="password">Password</label>
-                                            <div class="invalid-feedback">Password is required.</div>
-                                        </div>
-                                        <div class="pt-1 mb-4">
-                                            <button class="btn btn-outline-dark btn-lg btn-block" type="submit" name="submitBtn" id="submitBtn">Login</button>
-                                        </div>
-                                    </form>
-                                    <!-- end form -->
-                                    <div class="d-grid gap-2">
-                                        <span id="errorMessage" class="badge message rounded-pill badge-danger mb-2 p-3"><%- message %></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end card -->
-                </div>
-            </div>
-            <!-- end row -->
-        </div>
-    </section>
+	<section class="vh-100">
+		<div class="container py-5 h-100">
+			<!-- start row -->
+			<div class="row d-flex justify-content-center align-items-center h-100">
+				<div class="col col-xl-5">
+					<!-- start card -->
+					<div class="card" style="border-radius: 1rem;">
+						<div class="row g-0">
+							<div class="d-flex align-items-center">
+								<div class="card-body p-4 p-lg-5 text-black">
+									<!-- start form -->
+									<form method="post" class="mb-2 needs-validation" id="loginForm" novalidate>
+										<div class="d-flex align-items-center mb-3 pb-1">
+											<img src="/asset/images/bris.png" height="50" alt="" loading="lazy" />
+											<span class="h1 fw-bold mb-0">Briswell Vietnam</span>
+										</div>
+										<h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account</h5>
+										<div class="form-outline mb-4">
+											<label class="form-label" for="email">Email</label>
+											<input type="text" id="email" class="form-control form-control-lg" maxlength="255" name="email" value="<%= email%>" required>
+											<!-- list.js will add Japanese messages here -->
+											<div class="invalid-feedback" id="emailRequired"></div>
+										</div>
+										<div class="form-outline mb-4">
+											<label class="form-label" for="password">Password</label>
+											<input type="password" id="password" class="form-control form-control-lg" name="password" maxlength="20" required>
+											<!-- list.js will add Japanese messages here -->
+											<div class="invalid-feedback" id="passwordRequired"></div>
+										</div>
+										<div class="d-grid gap-2 pt-1 mb-4">
+											<button class="btn btn-outline-dark btn-lg" type="submit" name="submitBtn" id="submitBtn">Login</button>
+										</div>
+									</form>
+									<!-- end form -->
+									<% if (typeof message !== 'undefined' && message !== '') { %>
+									<div id="errorMessage" class="alert alert-danger" role="alert">
+										<%- message  %>
+									</div>
+									<% } %>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- end card -->
+				</div>
+			</div>
+			<!-- end row -->
+		</div>
+	</section>
 </main>
 
 <%- contentFor('pageTitle') %>
 Login
-

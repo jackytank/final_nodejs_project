@@ -53,7 +53,7 @@ $(function () {
                     `;
             }
             errorModalBodyEl.innerHTML = _msg;
-            const modal = new mdb.Modal(errorModalEl);
+            const modal = new bootstrap.Modal(errorModalEl, {});
             modal.show();
             if (wantReload) {
                 errorModalOkBtn.addEventListener('click', () => {
@@ -66,10 +66,10 @@ $(function () {
             pagingType: 'full_numbers',
             language: {
                 paginate: {
-                    first: "最終",
-                    previous: "前へ",
-                    next: "次へ",
-                    last: "最終",
+                    first: labels.FIRST,
+                    previous: labels.PREVIOUS,
+                    next: labels.NEXT,
+                    last: labels.LAST,
                 }
             },
             ordering: false,

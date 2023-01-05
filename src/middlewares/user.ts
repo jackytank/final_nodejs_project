@@ -20,17 +20,14 @@ export default async (req: Request, res: Response, next: NextFunction) => {
             getServiceOption: () => ({
                 endpoint: <string>apiEndpoint,
             }),
-            destroy: () => undefined, // 何もしない
+            destroy: () => undefined, // do nothing
         };
 
         res.locals.loginUser = {};
         res.locals.logoutRedirect = {};
 
         if (req.xhr) {
-            res.status(UNAUTHORIZED).json({
-                success: false,
-                message: 'unauthorized',
-            });
+            res.status(UNAUTHORIZED).json({ success: false, message: 'unauthorized' });
         } else {
             next();
         }
@@ -39,13 +36,12 @@ export default async (req: Request, res: Response, next: NextFunction) => {
             ...userSession,
             isAuthorized: true,
             destroy: () => {
-                (<Express.Session>req.session).user = undefined; // ユーザーセッションを削除
+                (<Express.Session>req.session).user = undefined; // delete user session
             },
         };
         res.locals = {
-            loginUser: req.user,
-            logoutRedirect: encodeURIComponent(req.originalUrl),
-        }; // レイアウトに使ってる
+            loginUser: req.user, logoutRedirect: encodeURIComponent(req.originalUrl),
+        };
         next();
     }
 };
