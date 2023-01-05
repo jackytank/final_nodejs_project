@@ -11,27 +11,21 @@
 			<!-- Brand -->
 			<a class="navbar-brand" href="/">
 				<img src="/asset/images/bris.png" height="35" alt="" loading="lazy" />
-                <small>Briswell VN</small>
+				<small>Briswell VN</small>
 			</a>
 			<!-- Right links -->
 			<ul class="navbar-nav ms-auto d-flex flex-row">
 				<!-- Avatar -->
 				<% if(loginUser.name){ %>
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle hidden-arrow d-flex align-items-center" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						<span><%= loginUser.name %></span>
-						<div class="vr mx-2"></div>
-						<span id="user-role" data-user-position="<%= loginUser.position_id %>">Position: <%= loginUser.position_id %> </span>
-						<span id="user-id" data-user-id="<%= loginUser.id %>"></span>
-					</a>
-				</li>
-				<a class="nav-link d-flex align-items-center" href="/logout?redirect=<%= logoutRedirect %> ">
-					<span>Logout</span>
+				<a class="nav-link d-flex align-items-center" href="#">
+					<label><%= loginUser.name %></label>
+					<div class="vr mx-2"></div>
+					<label id="user-position" data-user-position="<%= loginUser.position_id %>">Position: <%= loginUser.position_id %> </label>
+					<span id="user-id" data-user-id="<%= loginUser.id %>"></span>
 				</a>
+				<a class="nav-link d-flex align-items-center" href="/logout?redirect=<%= logoutRedirect %> ">Logout</a>
 				<% } else {%>
-				<a class="nav-link d-flex align-items-center" href="/login" id="loginLink">
-					<span>Login</span>
-				</a>
+				<a class="nav-link d-flex align-items-center" href="/login" id="loginLink">Login</a>
 				<% } %>
 
 			</ul>

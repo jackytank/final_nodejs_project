@@ -16,7 +16,6 @@ class AdminUserController {
 
     constructor() {
         this.addPage = this.addPage.bind(this);
-        this.contactPage = this.contactPage.bind(this);
         this.createNewUser = this.createNewUser.bind(this);
         this.editPage = this.editPage.bind(this);
         this.update = this.update.bind(this);
@@ -28,16 +27,6 @@ class AdminUserController {
         const dataBack = req.flash('dataBack')[0];
         res.render('admin/users/add', {
             activeTab: 'addUserTab',
-            dataBack: dataBack ?? {},
-            message: flashMessage
-        });
-    }
-    // GET
-    async contactPage(req: Request, res: Response) {
-        const flashMessage = req.flash('message')[0];
-        const dataBack = req.flash('dataBack')[0];
-        res.render('admin/contact/index', {
-            activeTab: 'contactTab',
             dataBack: dataBack ?? {},
             message: flashMessage
         });

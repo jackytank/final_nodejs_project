@@ -14,6 +14,7 @@ import { bench, getRandomPassword, isValidDate } from '../../../../utils/common'
 import { UserModel } from '../../../../models/user.model';
 import { AppDataSource } from '../../../../DataSource';
 import { _1MB } from '../../../../constants';
+import app from '../../../../server';
 
 interface CsvUserData {
     id: unknown;
@@ -53,9 +54,14 @@ class AdminUserApiController {
     async search(req: Request, res: Response) {
         try {
             // save req.query to session for export csv based on search query
-            req.session.searchQuery = req.query;
-            const data: CustomDataTableResult = await this.userService.searchData(req.query);
-            return res.status(200).json(data);
+            const { name, enteredDateFrom, enteredDateTo } = req.query;
+            let data: CustomDataTableResult = { draw: 0, data: [], recordsFiltered: 0, recordsTotal: 0 };
+            if (name || enteredDateFrom || enteredDateTo) {
+                req.session.searchQuery = req.query;
+                data = await this.userService.searchData(req.query);
+                return res.status(200).json(data);
+            }
+            return res.status(200).json({});
         } catch (error) {
             return res.status(500).json({ message: error.message, status: 500 });
         }
