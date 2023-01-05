@@ -315,7 +315,7 @@ export class UserService {
         } catch (error) {
             // if error then find all
             console.log(error);
-            data = []
+            data = [];
             recordsFiltered = recordsTotal;
         }
         const returnData = {
@@ -327,7 +327,7 @@ export class UserService {
         return returnData;
     }
     async getSearchQueryBuilder(query: Record<string, unknown>, hasAnyLimitOrOffset: boolean): Promise<SelectQueryBuilder<User>> {
-        const { length, start, name, createdDateFrom, createdDateTo } = setAllNull(query, { isEmpty: true });
+        const { length, start, name, enteredDateFrom, enteredDateTo } = setAllNull(query, { isEmpty: true });
         const b = this.userRepo.createQueryBuilder('user').select(['user.*']);
         // select(['user.*', 'company.name as `company_name`'])
         // .leftJoin('companies', 'company', 'company.id = user.company_id');
@@ -345,15 +345,17 @@ export class UserService {
                 b.offset(parseInt(start as string));
             }
         }
-        if (!_.isNil(createdDateFrom) && isValidDate(new Date(createdDateFrom as string))) {
-            b.andWhere('Date(user.created_date) >= :fromDate', { fromDate: `${createdDateFrom}` });
+        if (!_.isNil(enteredDateFrom) && isValidDate(new Date(enteredDateFrom as string))) {
+            b.andWhere('Date(user.entered_date) >= :fromDate', { fromDate: `${enteredDateFrom}` });
         }
-        if (!_.isNil(createdDateTo) && isValidDate(new Date(createdDateTo as string))) {
-            b.andWhere('Date(user.created_date) <= :toDate', { toDate: `${createdDateTo}` });
+        if (!_.isNil(enteredDateTo) && isValidDate(new Date(enteredDateTo as string))) {
+            b.andWhere('Date(user.entered_date) <= :toDate', { toDate: `${enteredDateTo}` });
         }
         if (!_.isNil(name)) {
             b.andWhere('user.name LIKE :name', { name: `%${name}%` });
         }
+        b.andWhere('user.deleted_date = :isDeleted', { isDeleted: false })
+        b.orderBy('user.name', 'ASC');
         return b;
     }
     /**

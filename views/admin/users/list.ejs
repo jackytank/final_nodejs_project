@@ -15,13 +15,13 @@
 					<div class="col-md-6 col-sm-12 mb-3">
 						<div class="input-group">
 							<span class="input-group-text">Entered Date From</span>
-							<input class="form-control" type="text" name="createdDateFrom" id="createdDateFrom">
+							<input class="form-control" type="text" name="enteredDateFrom" id="enteredDateFrom">
 						</div>
 					</div>
 					<div class="col-md-6 col-sm-12 mb-3">
 						<div class="input-group">
 							<span class="input-group-text">Entered Date To</span>
-							<input class="form-control" type="text" name="createdDateTo" id="createdDateTo">
+							<input class="form-control" type="text" name="enteredDateTo" id="enteredDateTo">
 						</div>
 					</div>
 				</div>
@@ -43,6 +43,7 @@
 				<table class="table" id="usersTable">
 					<thead class="table-light">
 						<tr>
+							<!-- <th>ID</th> -->
 							<th>User Name</th>
 							<th>Email</th>
 							<th>Division Name</th>
@@ -55,23 +56,25 @@
 			<!-- end table  -->
 
 			<!-- output csv, new btn - START -->
+			<% if (loginUser.position_id === 0) { %>
 			<div class="mb-3 d-flex flex-row">
 				<div class="me-2">
 					<a class="btn btn-outline-secondary d-block" href="/admin/users/addPage">New</a>
 				</div>
 				<!-- <div class="col-md-4">
-					<form id="importCsvForm">
-						<div class="input-group">
-							<input type="file" class="form-control" name="file" id="importCsvInput">
-							<button type="button" class="btn btn-outline-secondary" id="importCsvBtn">Import CSV</button>
-						</div>
-					</form>
-				</div> -->
+						<form id="importCsvForm">
+							<div class="input-group">
+								<input type="file" class="form-control" name="file" id="importCsvInput">
+								<button type="button" class="btn btn-outline-secondary" id="importCsvBtn">Import CSV</button>
+							</div>
+						</form>
+					</div> -->
 				<div class="me-2">
 					<button class="btn btn-outline-secondary d-block" id="exportCsvBtn">Output CSV</button>
 					<a hidden id="downloadTag"></a>
 				</div>
 			</div>
+			<% } %>
 			<!-- output csv, new btn - END -->
 		</div>
 	</div>

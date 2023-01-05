@@ -18,7 +18,7 @@ $(function () {
         searchForm = $(searchFormIdStr);
         usersTableElement = $('#usersTable');
         searchBtn = $('#searchBtn');
-        getUserRole = parseInt(document.querySelector('#user-role')?.dataset?.userPosition); // get user position attribute in defaultHeader.ejs (data-user-position="")
+        getUserPosition = parseInt(document.querySelector('#user-position')?.dataset?.userPosition); // get user position attribute in defaultHeader.ejs (data-user-position="")
         getUserId = parseInt(document.querySelector('#user-id')?.dataset?.userId); // get user id attribute in defaultHeader.ejs (data-user-id="")
         // for import, export csv
         importCsvFormEl = $('#importCsvForm');
@@ -26,10 +26,10 @@ $(function () {
         importCsvBtnEl = $('#importCsvBtn');
         importCsvFileSizeEl = $('#fileSize');
 
-        createdDateFromStr = '#createdDateFrom';
-        createdDateToStr = '#createdDateTo';
-        createdDateFrom = $(createdDateFromStr);
-        createdDateTo = $(createdDateToStr);
+        enteredDateFromStr = 'enteredDateFrom';
+        enteredDateToStr = 'enteredDateTo';
+        enteredDateFrom = $(enteredDateFromStr);
+        enteredDateTo = $(enteredDateToStr);
 
         // utility
         openErrorModalWithMsg = (modalId, modalMsgId, modalOkBtnId, status, message, messages, wantReload) => {
@@ -63,14 +63,16 @@ $(function () {
         };
 
         const table = usersTableElement.DataTable({
-            pagingType: 'full_numbers',
-            language: {
+            lengthChange: false, // disable show entries
+            pagingType: 'full_numbers', // have first, previous, next, last and numbers
+            language: { // set japanese messages (in public\asset\js\site\user\common.js)
                 paginate: {
                     first: labels.FIRST,
                     previous: labels.PREVIOUS,
                     next: labels.NEXT,
                     last: labels.LAST,
-                }
+                },
+                zeroRecords: "No Record",
             },
             ordering: false,
             searching: false,
@@ -84,11 +86,11 @@ $(function () {
                 url: '/api/admin/users/search',
                 data: function (d) {
                     const name = $('form#searchForm input[type=text][name=name]').val();
-                    const createdDateFrom = $('form#searchForm input[type=date][name=createdDateFrom]').val();
-                    const createdDateTo = $('form#searchForm input[type=date][name=createdDateTo]').val();
+                    const enteredDateFrom = $('form#searchForm input[type=date][name=enteredDateFrom]').val();
+                    const enteredDateTo = $('form#searchForm input[type=date][name=enteredDateTo]').val();
                     d.name = name;
-                    d.createdDateFrom = createdDateFrom;
-                    d.createdDateTo = createdDateTo;
+                    d.enteredDateFrom = enteredDateFrom;
+                    d.enteredDateTo = enteredDateTo;
                 },
                 error: function (xhr, error, code) {
                     openErrorModalWithMsg(null, null, null, null, 'Datatable AJAX request error!', null, false);
@@ -103,16 +105,21 @@ $(function () {
                 },
             ],
             columns: [
+                // {
+                //     data: 'id',
+                // },
                 {
                     data: null,
                     className: 'limit-char',
                     render: function (data, type, row, meta) {
-                        const userId = data.id;
                         // const isEditDisabled = getUserRole === 1 ? (Number(getUserId) === data.id ? false : true) : false;
                         // const isDelDisabled = getUserRole === 1 ? true : false;
-                        return `
-                        <a href="/admin/users/edit/${userId}">${escapeHtml(data.name)}</a>
-                        `;
+                        const userId = data.id;
+                        const isLoginUserGeDi = getUserPosition === 0 ? true : false;
+                        const escapedName = escapeHtml(data.name);
+                        const link = `<a href="/admin/users/edit/${userId}">${escapedName}</a>`;
+                        const label = `<label>${escapedName}</label>`;
+                        return `${isLoginUserGeDi ? link : label}`;
                     },
                 },
                 {
@@ -194,12 +201,12 @@ $(function () {
         searchForm.validate({
             errorElement: "span",
             rules: {
-                createdDateTo: {
-                    dateGreaterThanEqual: '#createdDateFrom',
+                enteredDateTo: {
+                    dateGreaterThanEqual: '#enteredDateFrom',
                 }
             },
             messages: {
-                createdDateTo: {
+                enteredDateTo: {
                     dateGreaterThanEqual: 'Date to must be greater than or equal to date from',
                 }
             }
