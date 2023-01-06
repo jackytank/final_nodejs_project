@@ -65,6 +65,10 @@ export type CustomValidateResult<Entity> = {
     datas?: Entity[] | null;
 };
 
+export type SearchUserListResult = {
+    "ID": number;
+}
+
 export type DestinationCallback = (error: Error | null, destination: string) => void;
 
 export type FileNameCallback = (error: Error | string | string[] | null, filename: string) => void;

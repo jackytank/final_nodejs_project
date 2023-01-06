@@ -187,5 +187,9 @@ export const escapeObjProps = (obj: { [key: string]: unknown; }) => {
     return tmp;
 };
 
+export const isHasDup = (a: unknown[]) => {
+    return _.uniqBy(a, 'name').length !== a.length;
+};
+
 
 // tri - my own custom functions - END

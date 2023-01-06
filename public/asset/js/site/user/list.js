@@ -27,10 +27,17 @@ $(function () {
         exportCsvBtnEl = $('#exportCsvBtn');
         importCsvFileSizeEl = $('#fileSize');
 
+        usernameInputStr = 'name';
         enteredDateFromStr = 'enteredDateFrom';
         enteredDateToStr = 'enteredDateTo';
+        usernameInput = $(usernameInputStr);
         enteredDateFrom = $(enteredDateFromStr);
         enteredDateTo = $(enteredDateToStr);
+
+        // for bootstrap invalid messages
+        invalidUsernameEl = $('#invalidUsername');
+        invalidFromEl = $('#invalidFrom');
+        invalidToEl = $('#invalidTo');
 
         // utility
         openErrorModalWithMsg = (modalId, modalMsgId, modalOkBtnId, status, message, messages, wantReload) => {
@@ -88,8 +95,8 @@ $(function () {
                 url: '/api/admin/users/search',
                 data: function (d) {
                     const name = $('form#searchForm input[type=text][name=name]').val();
-                    const enteredDateFrom = $('form#searchForm input[type=date][name=enteredDateFrom]').val();
-                    const enteredDateTo = $('form#searchForm input[type=date][name=enteredDateTo]').val();
+                    const enteredDateFrom = $('form#searchForm input[type=text][name=enteredDateFrom]').val();
+                    const enteredDateTo = $('form#searchForm input[type=text][name=enteredDateTo]').val();
                     d.name = name;
                     d.enteredDateFrom = enteredDateFrom;
                     d.enteredDateTo = enteredDateTo;
@@ -110,7 +117,7 @@ $(function () {
                 }
                 if (!isNaN(oSettings._iRecordsDisplay)) {
                     // if filter result is less than display length (set 10 in pageLength datatable above), hide pagination else show pagination
-                    if (oSettings._iRecordsDisplay < oSettings._iDisplayLength) {
+                    if (oSettings._iRecordsDisplay <= oSettings._iDisplayLength) {
                         // console.log(`check < run`);
                         // console.log(`recordDisplay: ${oSettings._iRecordsDisplay}, displayLength: ${oSettings._iDisplayLength}`);
                         isDataLessThanPageLength = true;
@@ -121,7 +128,6 @@ $(function () {
                 // for hiding pagination
                 if (isDataEmpty || isDataLessThanPageLength) {
                     $(api.table().container()).find('.dataTables_paginate').hide();
-
                 } else {
                     $(api.table().container()).find('.dataTables_paginate').show();
                 }
@@ -145,66 +151,63 @@ $(function () {
                 },
             ],
             columns: [
-                // {
-                //     data: 'id',
-                // },
+                {
+                    data: 'ID',
+                },
                 {
                     data: null,
                     className: 'limit-char',
                     render: function (data, type, row, meta) {
                         // const isEditDisabled = getUserRole === 1 ? (Number(getUserId) === data.id ? false : true) : false;
                         // const isDelDisabled = getUserRole === 1 ? true : false;
-                        const userId = data.id;
+                        const userId = data['ID'];
                         const isLoginUserGeDi = getUserPosition === 0 ? true : false;
-                        const escapedName = escapeHtml(data.name);
+                        const escapedName = escapeHtml(data['User Name']);
                         const link = `<a href="/admin/users/edit/${userId}">${escapedName}</a>`;
                         const label = `<label>${escapedName}</label>`;
                         return `${isLoginUserGeDi ? link : label}`;
                     },
                 },
                 {
-                    data: 'email',
+                    data: 'Email',
                     className: 'limit-char',
                     render: function (data, type, row, meta) {
                         return escapeHtml(data);
                     },
                 },
                 {
-                    data: 'division_id',
+                    data: 'Division Name',
                     className: 'limit-char',
                     render: function (data, type, row, meta) {
-                        return data;
+                        return escapeHtml(data);
                     },
                 },
                 {
-                    data: 'entered_date',
+                    data: 'Entered Date',
                     render: function (data, type, row, meta) {
                         return data ? dayjs(data).format('YYYY/MM/DD') : '';
                     },
                 },
                 {
-                    data: 'position_id',
+                    data: 'Position',
                     className: 'limit-char',
                     render: function (data, type, row, meta) {
-                        return data;
+                        const parsedData = parseInt(data);
+                        switch (parsedData) {
+                            case 0: return POS_NAME.GE_DI;
+                            case 1: return POS_NAME.GR_LE;
+                            case 2: return POS_NAME.LE;
+                            case 3: return POS_NAME.MEM;
+                            default: return '';
+                        }
                     },
                 },
             ],
         });
-
-        // const rowCount = usersTableElement.DataTable().rows().count();
-        // if (rowCount === 0) {
-        //     usersTableElement.on('xhr.dt', function (e, setting, json, xhr) {
-        //         if (json.recordsFiltered === 0 || json.recordsFiltered == null) {
-        //             // $('#usersTable').hide();
-        //         }
-        //     });
-        // }
     }
     function validation() {
         // add validate methods - START
-        $.validator.addMethod(
-            'isValidCsvFile',
+        $.validator.addMethod('isValidCsvFile',
             function (value, el) {
                 // const fileSize = element.size / 1024 / 1024 // in megabytes - mb
                 // iSize = (Math.round(iSize * 100) / 100)
@@ -225,14 +228,20 @@ $(function () {
             '',
         );
 
-        $.validator.addMethod('dateGreaterThanEqual',
-            function (value, element, params) {
-                if (!/Invalid|NaN/.test(new Date(value))) {
-                    return new Date(value) >= new Date($(params).val());
-                }
-                return isNaN(value) && isNaN($(params).val())
-                    || (Number(value) >= Number($(params).val()));
-            });
+        $.validator.addMethod('dateGreaterThanEqual', function (value, element, params) {
+            // console.log('from', dayjs(value, 'YYYY/MM/DD', true).isValid());
+            // console.log('to', dayjs($(params).val(), 'YYYY/MM/DD', true).isValid());
+
+            // if both date is valid, compare date else return true
+            if (dayjs(value, 'YYYY/MM/DD', true).isValid() && dayjs($(params).val(), 'YYYY/MM/DD', true).isValid()) {
+                return new Date(value) <= new Date($(params).val());
+            }
+            return true;
+            // return isNaN(value) && isNaN($(params).val()) || (Number(value) <= Number($(params).val()));
+        });
+        $.validator.addMethod('isValidDate', function (value, element, params) {
+            return this.optional(element) || dayjs(value, 'YYYY/MM/DD', true).isValid();
+        });
         // add validate methods - END
 
         importCsvFormEl.validate({
@@ -249,14 +258,27 @@ $(function () {
 
         searchForm.validate({
             errorElement: "span",
+            errorClass: 'text-danger',
+            errorPlacement: function (error, element) {
+                // find the nearest element that has .validate-wrapper class and append error after it
+                element.closest('.validate-wrapper').append(error);
+            },
             rules: {
+                enteredDateFrom: {
+                    isValidDate: true,
+                    dateGreaterThanEqual: '#enteredDateTo'
+                },
                 enteredDateTo: {
-                    dateGreaterThanEqual: '#enteredDateFrom',
+                    isValidDate: true,
                 }
             },
             messages: {
+                enteredDateFrom: {
+                    isValidDate: messages.ECL008('ENTERED DATE FROM'),
+                    dateGreaterThanEqual: messages.ECL069('ENTERED DATE '),
+                },
                 enteredDateTo: {
-                    dateGreaterThanEqual: 'Date to must be greater than or equal to date from',
+                    isValidDate: messages.ECL008('ENTERED DATE TO'),
                 }
             }
         });

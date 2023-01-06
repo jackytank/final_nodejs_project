@@ -47,7 +47,10 @@ export const messages = {
     BAD_REQUEST: 'BAD REQUEST',
     ECL056: 'No data in session.',
     ECL057: 'Failed to register data.',
-    ECL001: (field: string, maxChar: number, curChar: number) => {
+    ECL001: (field: string) => {
+        return `${field.toUpperCase()}は必須項目です。`;
+    },
+    ECL002: (field: string, maxChar: number, curChar: number) => {
         // Enter ${field} with less than "${maxChar}" characters. (currently ${curChar} characters)
         return `${field}は「${maxChar}」文字以下で入力してください。（現在${curChar}文字）																																`;
     },
@@ -55,6 +58,9 @@ export const messages = {
     ECL019: (field: string, minChar: number, curChar: number) => {
         // Your email address is already registered.
         return 'すでにメールアドレスは登録されています。';
+    },
+    ECL069: (field: string) => {
+        return `入力値が正しくありません。${field.toUpperCase()}FROMより${field.toUpperCase()}TOが大きくなるよう入力してください。`;
     }
 };
 

@@ -17,6 +17,7 @@
       "eslint": "eslint src/*/*.ts --ignore-pattern src/migrations/*.ts --fix",
       "build": "tsc",
       "start": "npm run build && node -r source-map-support/register .",
+      "start-only":"node -r source-map-support/register .",
       "migrate:create": "ts-node ./node_modules/typeorm/cli.js migration:create -n",
       "migrate:up": "ts-node ./node_modules/typeorm/cli.js migration:run",
       "migrate:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert"

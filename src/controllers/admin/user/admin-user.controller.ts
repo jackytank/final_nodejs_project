@@ -3,7 +3,7 @@ import { CustomApiResult } from './../../../customTypings/express/index';
 import { Request, Response } from 'express';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { UserService } from '../../../services/user.services';
+import { UserService } from '../../../services/user/user.service';
 import { User } from '../../../entities/user.entity';
 import { CustomEntityApiResult } from '../../../customTypings/express';
 import { POS_NAME } from '../../../constants';

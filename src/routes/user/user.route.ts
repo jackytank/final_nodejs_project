@@ -1,13 +1,13 @@
 import express from 'express';
 import AdminUserController from '../../controllers/admin/user/admin-user.controller';
-import { defaultAllow, allowBoth } from '../../middlewares/screenPermission';
+import { allowOnlyGeDi, allowBoth } from '../../middlewares/screenPermission';
 import { expressValidateUser, userExpressValidationRule } from '../../middlewares/validator/user/user.validator';
 import { createUserLimiter } from '../../utils/rateLimiter';
 const adminUserRouter = express.Router();
 
 // check permission for all routes
-adminUserRouter.use('/addPage', defaultAllow({ resAsApi: false }));
-adminUserRouter.use('/edit/:id', allowBoth({ resAsApi: false }));
+adminUserRouter.use('/addPage', allowOnlyGeDi({ resAsApi: false }));
+adminUserRouter.use('/edit/:id', allowOnlyGeDi({ resAsApi: false }));
 
 // base path: /admin/users/
 adminUserRouter.get('/addPage', AdminUserController.addPage);

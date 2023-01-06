@@ -3,12 +3,12 @@ import _ from 'lodash';
 import * as fs from 'fs';
 import * as csv from 'csv-parse';
 import * as nodemailer from 'nodemailer';
-import { User } from '../entities/user.entity';
-import { comparePassword, hashPassword } from '../utils/bcrypt';
-import { CustomEntityApiResult, CustomDataTableResult, CustomValidateResult, CustomApiResult } from '../customTypings/express';
-import { Division } from '../entities/division.entity';
-import { isValidDate, setAllNull } from '../utils/common';
-import { AppDataSource } from '../DataSource';
+import { User } from '../../entities/user.entity';
+import { comparePassword, hashPassword } from '../../utils/bcrypt';
+import { CustomEntityApiResult, CustomDataTableResult, CustomValidateResult, CustomApiResult } from '../../customTypings/express';
+import { Division } from '../../entities/division.entity';
+import { isValidDate, setAllNull } from '../../utils/common';
+import { AppDataSource } from '../../DataSource';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class UserService {
@@ -313,7 +313,7 @@ export class UserService {
             data = await builder.getRawMany(); //get data
             recordsFiltered = await builder.getCount(); // get filterd records count
         } catch (error) {
-            // if error then find all
+            // if error then set []
             console.log(error);
             data = [];
             recordsFiltered = recordsTotal;
@@ -328,12 +328,22 @@ export class UserService {
     }
     async getSearchQueryBuilder(query: Record<string, unknown>, hasAnyLimitOrOffset: boolean): Promise<SelectQueryBuilder<User>> {
         const { length, start, name, enteredDateFrom, enteredDateTo } = setAllNull(query, { isEmpty: true });
-        const b = this.userRepo.createQueryBuilder('user').select(['user.*']);
-        // select(['user.*', 'company.name as `company_name`'])
-        // .leftJoin('companies', 'company', 'company.id = user.company_id');
-
-        // let isFromAndToDateEqual = false;
+        const b = this.userRepo.createQueryBuilder('u')
+            .select(['u.id as `ID`', 'u.name as `User Name`', 'u.email as `Email`', 'u.division_id as `Division ID`', 'd.name as `Division Name`',
+                'u.entered_date as `Entered Date`', 'u.position_id as `Position`', 'u.created_date as `Created Date`', 'u.updated_date as `Updated Date`',])
+            .leftJoin('division', 'd', 'd.id = u.division_id');
         // check if queries exist then concat them with sql query
+        if (!_.isNil(enteredDateFrom) && isValidDate(new Date(enteredDateFrom as string))) {
+            b.andWhere('Date(u.entered_date) >= :fromDate', { fromDate: `${enteredDateFrom}` });
+        }
+        if (!_.isNil(enteredDateTo) && isValidDate(new Date(enteredDateTo as string))) {
+            b.andWhere('Date(u.entered_date) <= :toDate', { toDate: `${enteredDateTo}` });
+        }
+        if (!_.isNil(name)) {
+            b.andWhere('u.name LIKE :name', { name: `%${name}%` });
+        }
+        b.andWhere('u.deleted_date IS NULL');
+        b.orderBy('LENGTH(u.name)', 'ASC');
         if (hasAnyLimitOrOffset) {
             let hasLimit = false;
             if (!_.isNil(length)) {
@@ -345,17 +355,7 @@ export class UserService {
                 b.offset(parseInt(start as string));
             }
         }
-        if (!_.isNil(enteredDateFrom) && isValidDate(new Date(enteredDateFrom as string))) {
-            b.andWhere('Date(user.entered_date) >= :fromDate', { fromDate: `${enteredDateFrom}` });
-        }
-        if (!_.isNil(enteredDateTo) && isValidDate(new Date(enteredDateTo as string))) {
-            b.andWhere('Date(user.entered_date) <= :toDate', { toDate: `${enteredDateTo}` });
-        }
-        if (!_.isNil(name)) {
-            b.andWhere('user.name LIKE :name', { name: `%${name}%` });
-        }
-        b.andWhere('user.deleted_date IS NULL')
-        b.orderBy('user.name', 'ASC');
+        const sql = b.getQueryAndParameters();
         return b;
     }
     /**

@@ -7,22 +7,22 @@ import { SelectQueryBuilder, } from 'typeorm';
 import { validate, ValidationError } from 'class-validator';
 import { stringify } from 'csv-stringify';
 import dayjs from 'dayjs';
-import { UserService } from '../../../../services/user.services';
+import { UserService } from '../../../../services/user/user.service';
 import { CustomEntityApiResult, CustomValidateResult, } from '../../../../customTypings/express';
 import { User } from '../../../../entities/user.entity';
-import { bench, getRandomPassword, isValidDate } from '../../../../utils/common';
+import { bench, getRandomPassword, isHasDup, isValidDate } from '../../../../utils/common';
 import { UserModel } from '../../../../models/user.model';
 import { AppDataSource } from '../../../../DataSource';
 import { _1MB } from '../../../../constants';
-import app from '../../../../server';
 
-interface CsvUserData {
+interface CustomUserData {
     id: unknown;
     name: unknown;
     email: unknown;
     position_id: unknown;
     division_id: unknown;
     deleted: unknown;
+    "ID": string;
 }
 
 class AdminUserApiController {
@@ -55,14 +55,16 @@ class AdminUserApiController {
         try {
             // save req.query to session for export csv based on search query
             const { name, enteredDateFrom, enteredDateTo } = req.query;
-            let data: CustomDataTableResult = { draw: 0, data: [], recordsFiltered: 0, recordsTotal: 0 };
+            let result: CustomDataTableResult = { draw: 0, data: [], recordsFiltered: 0, recordsTotal: 0 };
             if (name || enteredDateFrom || enteredDateTo) {
                 req.session.searchQuery = req.query;
-                data = await this.userService.searchData(req.query);
-                const checkDup = (a: User[]) => {
-                    return _.uniqBy(a, 'name').length !== a.length;
-                };
-                return res.status(200).json(data);
+                result = await this.userService.searchData(req.query);
+                if (isHasDup(result.data)) {
+                    result.data = _.orderBy(result.data.map((user: CustomUserData) => {
+                        return { ...user, "ID": parseInt(user.id as string) };
+                    }), ['ID'], ['asc']);
+                }
+                return res.status(200).json(result);
             }
             return res.status(200).json({});
             // data = await this.userService.searchData(req.query);
@@ -139,8 +141,8 @@ class AdminUserApiController {
             if (records.length === 0) {
                 return res.status(400).json({ message: 'File is empty' });
             }
-            const idRecords = records.filter((record: CsvUserData) => record['id'] !== '').map((record: CsvUserData) => record['id']);
-            const emailRecords = records.filter((record: CsvUserData) => record['email'] !== '').map((record: CsvUserData) => record['email']);
+            const idRecords = records.filter((record: CustomUserData) => record['id'] !== '').map((record: CustomUserData) => record['id']);
+            const emailRecords = records.filter((record: CustomUserData) => record['email'] !== '').map((record: CustomUserData) => record['email']);
             const deleteArr: User[] = []; // array of users to delete
             const insertArr: User[] = []; // array of users to insert
             const updateArr: User[] = []; // array of users to update
@@ -158,7 +160,7 @@ class AdminUserApiController {
             const startValidateFunc = async () => {
                 // iterate csv records data and check row
                 for (let i = 0; i < records.length; i++) {
-                    const row: CsvUserData = records[i] as CsvUserData;
+                    const row: CustomUserData = records[i] as CustomUserData;
                     const user: User = Object.assign(new User(), {
                         id: row['id'] === '' ? null : _.isString(row['id']) ? parseInt(row['id']) : row['id'],
                         name: row['name'] === '' ? null : row['name'],
@@ -252,33 +254,30 @@ class AdminUserApiController {
     async exportCsv(req: Request, res: Response) {
         const { start, end } = bench();
         const searchQuery = req.session.searchQuery;
-        let builder: SelectQueryBuilder<User>;
-        let userList: User[];
-        if (searchQuery) {
-            builder = await this.userService.getSearchQueryBuilder(searchQuery, false); // set false to turn off offset,limit search criteria
-            userList = await builder.getRawMany();
-        } else {
-            userList = await this.userRepo.find();
+        if (!searchQuery) {
+            return res.status(400).json({ message: "You haven't search anything yet, failed to export!", status: 400 });
         }
+        const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(searchQuery, false); // set false to turn off offset,limit search criteria
+        const userList: User[] = await builder.getRawMany();
         // if list is empty then return 404
         // userList = [];
         if (userList.length === 0) {
-            return res.status(404).json({ message: 'Database is empty!', status: 404 });
+            return res.status(404).json({ message: 'No records found on search criteria entered!', status: 404 });
         }
         start();
-        // format date, transform role number to string (Ex: '1' => 'User')
-        userList.map((user: UserModel) => {
-            user['created_date'] = isValidDate(user['created_date']) ? dayjs(user['created_date']).format('YYYY/MM/DD') : '';
-            user['updated_date'] = isValidDate(user['updated_date']) ? dayjs(user['updated_date']).format('YYYY/MM/DD') : '';
-            switch (user['position_id'] as number | undefined) {
-                case 0: user['position_id'] = POS_NAME.GE_DI; break;
-                case 1: user['position_id'] = POS_NAME.GR_LE; break;
-                case 2: user['position_id'] = POS_NAME.LE; break;
-                case 3: user['position_id'] = POS_NAME.MEM; break;
-                default: break;
-            }
-            user['password'] = user['password'].replace(/./g, '*'); // Ex: '123456' to '******'
-        });
+        // userList.map((user: UserModel) => {
+        //     user['created_date'] = isValidDate(user['created_date']) ? dayjs(user['created_date']).format('YYYY/MM/DD') : '';
+        //     user['updated_date'] = isValidDate(user['updated_date']) ? dayjs(user['updated_date']).format('YYYY/MM/DD') : '';
+        //     switch (user['position_id'] as number | undefined) {
+        //         case 0: user['position_id'] = POS_NAME.GE_DI; break;
+        //         case 1: user['position_id'] = POS_NAME.GR_LE; break;
+        //         case 2: user['position_id'] = POS_NAME.LE; break;
+        //         case 3: user['position_id'] = POS_NAME.MEM; break;
+        //         default: break;
+        //     }
+
+        //     // user['password'] = user['password'].replace(/./g, '*'); // Ex: '123456' to '******'
+        // });
         const filename = `list_user_${dayjs(Date.now()).format('YYYYMMDDHHmmss',)}.csv`;
         const columns = Object.keys(userList[0]);
         const columns_string = columns.toString().replace(/,/g, ',');
