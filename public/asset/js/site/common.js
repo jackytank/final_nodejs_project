@@ -21,14 +21,15 @@ const labels = {
 const messages = {
   DISABLED_POPUP_INFORM: 'ポップアップの自動表示はデフォルトでブロックされています。このサイトを例外リストに追加してください。',
   ECL001: (field) => {
-    return `${field.toUpperCase()}は必須項目です。`;
+    return `${field}は必須項目です。`;
   },
   ECL002: (field, maxChar, curChar) => {
     // Enter ${field} with less than "${maxChar}" characters. (currently ${curChar} characters)
-    return `${field.toUpperCase()}は「${maxChar}」文字以下で入力してください。（現在${curChar}文字）																																`;
+    return `${field}は「${maxChar}」文字以下で入力してください。（現在${curChar}文字）																																`;
   },
+  ECL005: 'メールアドレスを正しく入力してください。',
   ECL008: (field) => {
-    return `${field.toUpperCase()}は日付を正しく入力してください。`
+    return `${field.toUpperCase()}は日付を正しく入力してください。`;
   },
   ECL009: '開始日に終了日以降の日付を入力して検索することはできません。',
   ECL010: 'データが選択されていません。',

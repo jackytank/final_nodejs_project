@@ -1,9 +1,10 @@
+import divisionController from '../../controllers/division/division.controller';
 import express from 'express';
-import adminDivisionController from '../../controllers/admin/division/admin-division.controller';
+
 import { allowOnlyGeDi } from '../../middlewares/screenPermission';
-const adminDivisionRouter = express.Router();
+const divisionRouter = express.Router();
 
 // base path: /admin/divisions/
-adminDivisionRouter.get('/list', allowOnlyGeDi({ resAsApi: false }), adminDivisionController.listPage);
+divisionRouter.get('/list', allowOnlyGeDi({ resAsApi: false }), divisionController.listPage);
 
-export default adminDivisionRouter;
+export default divisionRouter;

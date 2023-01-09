@@ -1,12 +1,4 @@
-<div class="container pt-4">
-	<section class="mb-4">
-		<div class="card">
-			<div class="card-header py-3">
-				<h5 class="mb-0 text-center"><strong>ADD USER</strong></h5>
-			</div>
-		</div>
-	</section>
-
+<div class="container pt-4" id="vue-add-app">
 	<div class="container">
 		<%- include('./_form.ejs', {
             formId: 'userForm',
@@ -18,7 +10,23 @@
 	</div>
 </div>
 
+
 <script src="/asset/js/site/user/addAndEdit.js"></script>
+
+<script type="module">
+import {
+	createApp
+} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+
+createApp({
+	data() {
+		return {
+			message: 'Hello Vue!'
+		}
+	}
+}).mount('#vue-add-app')
+</script>
+
 
 <%- contentFor('pageTitle') %>
 Add
