@@ -20,3 +20,23 @@ const POS_NAME = {
   LE: 'Leader',
   MEM: 'Member',
 };
+
+const POS_ARR = [
+  {
+    id: 0,
+    name: 'General Director'
+  },
+  {
+    id: 1,
+    name: 'Group Leader'
+  },
+  {
+    id: 2,
+    name: 'Leader'
+  },
+  {
+    id: 3,
+    name: 'Member'
+  },
+
+];
