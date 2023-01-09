@@ -1,5 +1,5 @@
 import { POS_NAME } from './../../../../constants';
-import { CustomDataTableResult } from './../../../../customTypings/express/index';
+import { CustomDataTableResult, CustomUserData } from './../../../../customTypings/express/index';
 import { Request, Response } from 'express';
 import _ from 'lodash';
 import * as csv from 'csv-parse';
@@ -14,16 +14,6 @@ import { bench, getRandomPassword, isHasDup, isValidDate } from '../../../../uti
 import { UserModel } from '../../../../models/user.model';
 import { AppDataSource } from '../../../../DataSource';
 import { _1MB } from '../../../../constants';
-
-interface CustomUserData {
-    id: unknown;
-    name: unknown;
-    email: unknown;
-    position_id: unknown;
-    division_id: unknown;
-    deleted: unknown;
-    "ID": string;
-}
 
 class AdminUserApiController {
     private userRepo = AppDataSource.getRepository(User);
@@ -55,13 +45,13 @@ class AdminUserApiController {
         try {
             // save req.query to session for export csv based on search query
             const { name, enteredDateFrom, enteredDateTo } = req.query;
+            req.session.searchQuery = req.query;
             let result: CustomDataTableResult = { draw: 0, data: [], recordsFiltered: 0, recordsTotal: 0 };
             if (name || enteredDateFrom || enteredDateTo) {
-                req.session.searchQuery = req.query;
                 result = await this.userService.searchData(req.query);
                 if (isHasDup(result.data)) {
                     result.data = _.orderBy(result.data.map((user: CustomUserData) => {
-                        return { ...user, "ID": parseInt(user.id as string) };
+                        return { ...user, "ID": parseInt(user['ID'] as string) };
                     }), ['ID'], ['asc']);
                 }
                 return res.status(200).json(result);
@@ -253,11 +243,11 @@ class AdminUserApiController {
     }
     async exportCsv(req: Request, res: Response) {
         const { start, end } = bench();
-        const searchQuery = req.session.searchQuery;
-        if (!searchQuery) {
+        const query = req.session.searchQuery;
+        if (!query?.name && !query?.enteredDateFrom && !query?.enteredDateTo) {
             return res.status(400).json({ message: "You haven't search anything yet, failed to export!", status: 400 });
         }
-        const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(searchQuery, false); // set false to turn off offset,limit search criteria
+        const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(query, false); // set false to turn off offset,limit search criteria
         const userList: User[] = await builder.getRawMany();
         // if list is empty then return 404
         // userList = [];

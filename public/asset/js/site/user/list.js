@@ -240,7 +240,7 @@ $(function () {
             // return isNaN(value) && isNaN($(params).val()) || (Number(value) <= Number($(params).val()));
         });
         $.validator.addMethod('isValidDate', function (value, element, params) {
-            return this.optional(element) || dayjs(value, 'YYYY/MM/DD', true).isValid();
+            return this.optional(element) || /^(\d{4})[\/](0?[1-9]|1[012])[\/](0?[1-9]|[12][0-9]|3[01])$/.test(value);
         });
         // add validate methods - END
 

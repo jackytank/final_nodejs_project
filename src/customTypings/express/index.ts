@@ -58,6 +58,17 @@ export type CustomDataTableResult = {
     data: unknown[];
 };
 
+export interface CustomUserData {
+    "ID": string | number;
+    "User Name": string;
+    "id": string;
+    "email": string;
+    "name": string;
+    "division_id": string | number;
+    "position_id": string | number;
+    "deleted": string;
+}
+
 export type CustomValidateResult<Entity> = {
     isValid: boolean;
     message?: string;
@@ -67,7 +78,7 @@ export type CustomValidateResult<Entity> = {
 
 export type SearchUserListResult = {
     "ID": number;
-}
+};
 
 export type DestinationCallback = (error: Error | null, destination: string) => void;
 

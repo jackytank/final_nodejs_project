@@ -1,3 +1,4 @@
+import { CustomUserData } from './../customTypings/express/index';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import moment from 'moment-timezone';
 import Big from 'big.js';
@@ -188,7 +189,7 @@ export const escapeObjProps = (obj: { [key: string]: unknown; }) => {
 };
 
 export const isHasDup = (a: unknown[]) => {
-    return _.uniqBy(a, 'name').length !== a.length;
+    return new Set(a.map((item: CustomUserData) => item['User Name'])).size !== a.length;
 };
 
 

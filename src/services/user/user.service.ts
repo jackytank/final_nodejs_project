@@ -355,7 +355,6 @@ export class UserService {
                 b.offset(parseInt(start as string));
             }
         }
-        const sql = b.getQueryAndParameters();
         return b;
     }
     /**
