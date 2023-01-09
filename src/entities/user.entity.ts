@@ -18,7 +18,7 @@ export enum PosEnum {
   name: 'user',
   synchronize: false,
   orderBy: {
-    id: 'DESC',
+    id: 'ASC',
   },
 })
 export class User extends Base {
@@ -57,7 +57,7 @@ export class User extends Base {
     { message: errMsg.ERR003('position_id') })
   position_id!: number; // 0: General Director, 1: Group Leader, 2: Leader, 3: Member
 
-  @OneToMany(type => Division, division => division.users)
-  divisions: Division[];
+  // @OneToMany(type => Division, division => division.users)
+  // divisions: Division[];
 }
 

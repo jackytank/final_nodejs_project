@@ -23,10 +23,10 @@ export class Division extends Base {
     @Column({ name: 'division_leader_id', type: 'bigint', nullable: false })
     division_leader_id!: number;
 
-    @Column({ name: 'division_leader_id', type: 'int', nullable: false })
+    @Column({ name: 'division_floor_num', type: 'int', nullable: false })
     division_floor_num!: number;
 
-    @ManyToOne(type => User, user => user.divisions)
-    users: User[];
+    // @ManyToOne(type => User, user => user.divisions)
+    // users: User[];
 
 }

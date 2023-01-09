@@ -39,6 +39,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
                 (<Express.Session>req.session).user = undefined; // delete user session
             },
         };
+        // console.log(req.user);
         res.locals = {
             loginUser: req.user, logoutRedirect: encodeURIComponent(req.originalUrl),
         };

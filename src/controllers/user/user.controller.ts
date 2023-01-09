@@ -1,13 +1,13 @@
-import { POS_NUM } from './../../../constants';
-import { CustomApiResult } from './../../../customTypings/express/index';
+import { POS_NUM } from '../../constants';
+import { CustomApiResult } from '../../customTypings/express/index';
 import { Request, Response } from 'express';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { UserService } from '../../../services/user.services';
-import { User } from '../../../entities/user.entity';
-import { CustomEntityApiResult } from '../../../customTypings/express';
-import { POS_NAME } from '../../../constants';
-import { AppDataSource } from '../../../DataSource';
+import { UserService } from '../../services/user/user.service';
+import { User } from '../../entities/user.entity';
+import { CustomEntityApiResult } from '../../customTypings/express';
+import { POS_NAME } from '../../constants';
+import { AppDataSource } from '../../DataSource';
 import process from 'process';
 
 class AdminUserController {

@@ -45,68 +45,64 @@ function allow(options: {
         if (options.permitIf && options.permitIf.userSessionPropEqualPropFrom) {
             if (Object.keys(req.params).length !== 0 && options.permitIf.userSessionPropEqualPropFrom.params) {
                 const { whichProp } = options.permitIf.userSessionPropEqualPropFrom.params;
-                const userSession = req.session === undefined ? undefined : req.session.user;
+                const userSession = req.session.user === undefined ? req.user : req.session.user;
                 const prop = userSession?.[whichProp as keyof typeof userSession];
                 if (req.params[whichProp].trim() === (typeof prop === 'string' ? prop === 'string' : prop?.toString())) {
                     next();
-                    return;
                 }
             }
             if (Object.keys(req.body).length !== 0 && options.permitIf.userSessionPropEqualPropFrom.body) {
                 const { whichProp } = options.permitIf.userSessionPropEqualPropFrom.body;
-                const userSession = req.session === undefined ? undefined : req.session.user;
+                const userSession = req.session.user === undefined ? req.user : req.session.user;
                 const prop = userSession?.[whichProp as keyof typeof userSession];
                 if (req.body[whichProp].trim() === (typeof prop === 'string' ? prop : prop?.toString())) {
                     next();
-                    return;
                 }
             }
         }
-        if (userPos && options.posArr.includes(userPos)) {
+        if (userPos != null && options.posArr.includes(userPos)) {
             next();
-            return;
         } else {
+            logger.logWarning(req, messages.FORBIDDEN);
             if (options.resAsApi === true) {
-                return res.status(403).json({ status: 403, message: 'Forbidden' });
+                res.status(403).json({ status: 403, message: 'Forbidden' });
+                return;
             }
             if (options.resAsApi === false || options.resAsApi === undefined || options.resAsApi === null) {
-                logger.logWarning(req, messages.FORBIDDEN);
-                return res.render('errors/index', {
+                res.render('errors/index', {
                     title: titleMessageError.FORBIDDEN,
                     content: messages.FORBIDDEN,
                 });
+                return;
             }
         }
     };
 }
+
+export const allowOnlyGeDi = (options: { resAsApi: boolean; }) => {
+    return allow({ posArr: [POS_NUM.GE_DI], resAsApi: options.resAsApi });
+};
 /**
- * 
- * @param options accept resAsApi as boolean
- * @returns as http status code 403 if options.resAsApi is true, otherwise render error page
+ * @deprecated
  */
 export const defaultAllow = (options: { resAsApi: boolean; }) => {
     return allow({ posArr: [POS_NUM.GR_LE, POS_NUM.LE], resAsApi: options.resAsApi });
 };
+
 /**
- * 
- * @param options accept resAsApi as boolean
- * @returns return as http status code 403 if options.resAsApi is true, otherwise render error page
+ * @deprecated
  */
 export const allowParams = (options: { resAsApi: boolean; }) => {
     return allow({ posArr: [POS_NUM.GR_LE, POS_NUM.LE], resAsApi: options.resAsApi, permitIf: { userSessionPropEqualPropFrom: { params: { whichProp: 'id' } } } });
 };
 /**
- * 
- * @param options accept resAsApi as boolean
- * @returns return as http status code 403 if options.resAsApi is true, otherwise render error page
+ * @deprecated
  */
 export const allowBody = (options: { resAsApi: boolean; }) => {
     return allow({ posArr: [POS_NUM.GR_LE, POS_NUM.LE], resAsApi: options.resAsApi, permitIf: { userSessionPropEqualPropFrom: { body: { whichProp: 'id' } } } });
 };
 /**
- * 
- * @param options accept resAsApi as boolean
- * @returns return as http status code 403 if options.resAsApi is true, otherwise render error page
+ * @deprecated
  */
 export const allowBoth = (options: { resAsApi: boolean; }) => {
     return allow({ posArr: [POS_NUM.GR_LE, POS_NUM.LE], resAsApi: options.resAsApi, permitIf: { userSessionPropEqualPropFrom: { params: { whichProp: 'id' }, body: { whichProp: 'id' } } } });
