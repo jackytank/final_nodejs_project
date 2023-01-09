@@ -8,6 +8,7 @@ import userMiddleware from '../middlewares/user';
 import authRouter from './auth';
 import viewHelper from '../middlewares/viewHelper';
 import adminUserRouter from './user/user.route';
+import adminDivisionRouter from './division/division.route';
 import adminUserApiRouter from './user/user.api.route';
 import { noCache } from '../middlewares/noCache';
 import { authentication } from '../middlewares/authentication';
@@ -27,6 +28,7 @@ router.get('/', (req, res) => {
 });
 
 router.use('/admin/users', adminUserRouter);
+router.use('/admin/divisions', adminDivisionRouter);
 router.use('/api/admin/users', adminUserApiRouter);
 
 // 404 error

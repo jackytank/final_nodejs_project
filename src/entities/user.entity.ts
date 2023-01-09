@@ -18,7 +18,7 @@ export enum PosEnum {
   name: 'user',
   synchronize: false,
   orderBy: {
-    id: 'DESC',
+    id: 'ASC',
   },
 })
 export class User extends Base {

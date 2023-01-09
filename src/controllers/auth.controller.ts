@@ -4,7 +4,7 @@
  */
 import * as logger from '../utils/logger';
 import { Request, Response } from 'express';
-import { UserService } from '../services/user.services';
+import { UserService } from '../services/user/user.service';
 import { messages } from '../constants';
 
 /**
