@@ -1,5 +1,5 @@
-import { POS_NAME } from './../../../../constants';
-import { CustomDataTableResult, CustomUserData } from './../../../../customTypings/express/index';
+import { POS_NAME } from '../../../constants';
+import { CustomDataTableResult, CustomUserData } from '../../../customTypings/express/index';
 import { Request, Response } from 'express';
 import _ from 'lodash';
 import * as csv from 'csv-parse';
@@ -8,15 +8,15 @@ import { validate, ValidationError } from 'class-validator';
 import { stringify } from 'csv-stringify';
 import validator from 'validator';
 import dayjs from 'dayjs';
-import { UserService } from '../../../../services/user/user.service';
-import { CustomEntityApiResult, CustomValidateResult, } from '../../../../customTypings/express';
-import { User } from '../../../../entities/user.entity';
-import { bench, getRandomPassword, isHasDup, isValidDate } from '../../../../utils/common';
-import { UserModel } from '../../../../models/user.model';
-import { AppDataSource } from '../../../../DataSource';
-import { _1MB } from '../../../../constants';
+import { UserService } from '../../../services/user/user.service';
+import { CustomEntityApiResult, CustomValidateResult, } from '../../../customTypings/express';
+import { User } from '../../../entities/user.entity';
+import { bench, getRandomPassword, isHasDup, isValidDate } from '../../../utils/common';
+import { UserModel } from '../../../models/user.model';
+import { AppDataSource } from '../../../DataSource';
+import { _1MB } from '../../../constants';
 
-class AdminUserApiController {
+class UserApiController {
     private userRepo = AppDataSource.getRepository(User);
     private userService = new UserService();
 
@@ -297,4 +297,4 @@ class AdminUserApiController {
     //for routing control purposes - END
 }
 
-export default new AdminUserApiController();
+export default new UserApiController();

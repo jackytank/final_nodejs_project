@@ -54,7 +54,7 @@ export const messages = {
         // Enter ${field} with less than "${maxChar}" characters. (currently ${curChar} characters)
         return `${field}は「${maxChar}」文字以下で入力してください。（現在${curChar}文字）																																`;
     },
-    ECL017: '入力した情報のいずれかの情報が間違っています。確認してから再度試してください。', // for login failed
+    ECL017: '入力した情報のいずれかの情報が間違っています。<br>確認してから再度試してください。', // for login failed
     ECL019: (field: string, minChar: number, curChar: number) => {
         // Your email address is already registered.
         return 'すでにメールアドレスは登録されています。';

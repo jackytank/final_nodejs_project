@@ -7,11 +7,12 @@ import sessionMiddleWare from '../middlewares/session';
 import userMiddleware from '../middlewares/user';
 import authRouter from './auth';
 import viewHelper from '../middlewares/viewHelper';
-import adminUserRouter from './user/user.route';
-import adminDivisionRouter from './division/division.route';
-import adminUserApiRouter from './user/user.api.route';
+import userRouter from './user/user.route';
+import divisionRouter from './division/division.route';
+import userApiRouter from './user/user.api.route';
 import { noCache } from '../middlewares/noCache';
 import { authentication } from '../middlewares/authentication';
+import divisionApiRouter from './division/division.api.route';
 const router = Router();
 
 router.use(sessionMiddleWare);
@@ -27,9 +28,10 @@ router.get('/', (req, res) => {
     res.redirect('/admin/users/list');
 });
 
-router.use('/admin/users', adminUserRouter);
-router.use('/admin/divisions', adminDivisionRouter);
-router.use('/api/admin/users', adminUserApiRouter);
+router.use('/admin/users', userRouter);
+router.use('/admin/divisions', divisionRouter);
+router.use('/api/admin/users', userApiRouter);
+router.use('/api/admin/divisions', divisionApiRouter);
 
 // 404 error
 router.use(notFoundHandler);

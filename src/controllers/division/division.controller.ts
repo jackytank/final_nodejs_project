@@ -1,9 +1,9 @@
-import { AppDataSource } from "../../../DataSource";
-import { Division } from "../../../entities/division.entity";
-import { DivisionService } from "../../../services/division/division.service";
+import { AppDataSource } from "../../DataSource";
+import { Division } from "../../entities/division.entity";
+import { DivisionService } from "../../services/division/division.service";
 import { Request, Response } from "express";
 
-class AdminDivisionController {
+class DivisionController {
     private disRepo = AppDataSource.getRepository(Division);
     private disService = new DivisionService();
 
@@ -22,4 +22,4 @@ class AdminDivisionController {
     }
 }
 
-export default new AdminDivisionController();
+export default new DivisionController();

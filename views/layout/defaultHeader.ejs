@@ -20,8 +20,7 @@
 				<a class="nav-link d-flex align-items-center" href="#">
 					<label><%= loginUser.name %></label>
 					<div class="vr mx-2"></div>
-					<span id="user-position" data-user-position="<%= loginUser.position_id %>">
-					</span>
+					<span id="user-position" data-user-position="<%= loginUser.position_id %>"><%= loginUser.position_id %></span>
 					<span id="user-id" data-user-id="<%= loginUser.id %>"></span>
 				</a>
 				<a class="nav-link d-flex align-items-center" href="/logout?redirect=<%= logoutRedirect %> ">Logout</a>
