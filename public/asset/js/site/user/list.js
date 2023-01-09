@@ -151,9 +151,9 @@ $(function () {
                 },
             ],
             columns: [
-                {
-                    data: 'ID',
-                },
+                // {
+                //     data: 'ID',
+                // },
                 {
                     data: null,
                     className: 'limit-char',

@@ -6,6 +6,7 @@ import * as csv from 'csv-parse';
 import { SelectQueryBuilder, } from 'typeorm';
 import { validate, ValidationError } from 'class-validator';
 import { stringify } from 'csv-stringify';
+import validator from 'validator';
 import dayjs from 'dayjs';
 import { UserService } from '../../../../services/user/user.service';
 import { CustomEntityApiResult, CustomValidateResult, } from '../../../../customTypings/express';
@@ -48,7 +49,7 @@ class AdminUserApiController {
             req.session.searchQuery = req.query;
             let result: CustomDataTableResult = { draw: 0, data: [], recordsFiltered: 0, recordsTotal: 0 };
             if (name || enteredDateFrom || enteredDateTo) {
-                result = await this.userService.searchData(req.query);
+                result = await this.userService.searchData({ ...req.query, name: validator.escape(req.query.name as string) });
                 if (isHasDup(result.data)) {
                     result.data = _.orderBy(result.data.map((user: CustomUserData) => {
                         return { ...user, "ID": parseInt(user['ID'] as string) };
