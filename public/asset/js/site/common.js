@@ -27,17 +27,21 @@ const messages = {
     // Enter ${field} with less than "${maxChar}" characters. (currently ${curChar} characters)
     return `${field}は「${maxChar}」文字以下で入力してください。（現在${curChar}文字）																																`;
   },
+  ECL004: (field) => {
+    return `${field}は半角英数で入力してください。`;
+  },
   ECL005: 'メールアドレスを正しく入力してください。',
   ECL008: (field) => {
-    return `${field.toUpperCase()}は日付を正しく入力してください。`;
+    return `${field}は日付を正しく入力してください。`;
   },
   ECL009: '開始日に終了日以降の日付を入力して検索することはできません。',
   ECL010: 'データが選択されていません。',
   ECL017: '入力した情報のいずれかの情報が間違っています。確認してから再度試してください。',
   ECL021: 'ファイル形式が誤っています。CSVを選択してください。',
-  ECL023: 'ファイルのサイズ制限10MBを超えています。',
+  ECL023: 'パスワードは半角英数字記号で8～20文字で入力してください。',
+  ECL030: '確認用のパスワードが間違っています。',
   ECL069: (field) => {
-    return `入力値が正しくありません。${field.toUpperCase()}FROMより${field.toUpperCase()}TOが大きくなるよう入力してください。`;
+    return `入力値が正しくありません。${field}FROMより${field}TOが大きくなるよう入力してください。`;
   }
 };
 
@@ -646,6 +650,36 @@ const unEscapeHtml = (htmlStr) => {
     htmlStr = htmlStr.replace(/&#39;/g, "\'");
     htmlStr = htmlStr.replace(/&amp;/g, "&");
     return htmlStr;
+  }
+};
+
+const openErrorModalWithMsg = (modalId, modalMsgId, modalOkBtnId, status, message, messages, wantReload) => {
+  const errorModalEl = document.querySelector(`#${modalId || 'errorModal'}`);
+  const errorModalBodyEl = document.querySelector(`#${modalMsgId || 'errorModalMessage'}`);
+  const errorModalOkBtn = document.querySelector(`#${modalOkBtnId || 'errorModalOkBtn'}`);
+  let _msg = ``;
+  if (message) {
+    _msg = `
+              <h3>${status || ''}</h3>
+              <p>${message}</p>
+           `;
+  }
+
+  if (messages) {
+    _msg = `
+              <h3>${status || ''}</h3>
+              <ul class="text-center">
+                  ${messages.map(msg => `<li class="row">${msg}</li>`)}
+              </ul>
+          `;
+  }
+  errorModalBodyEl.innerHTML = _msg;
+  const modal = new bootstrap.Modal(errorModalEl, {});
+  modal.show();
+  if (wantReload) {
+    errorModalOkBtn.addEventListener('click', () => {
+      location.reload();
+    });
   }
 };
 

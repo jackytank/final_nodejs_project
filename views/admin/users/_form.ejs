@@ -1,81 +1,68 @@
-<form id="<%= formId %>" class="needs-validation" method="<%= formMethod %>" novalidate>
+<form id="addEditDeleteForm" class="" method="<%= formMethod %>">
 	<div class="row">
-		<div class="col-md-6 col-sm-12 mb-4">
+		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label for="name" class="input-group-text w-50">ID</label>
 			</div>
 		</div>
-		<div class="col-md-6 col-sm-12 mb-4">
+		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label for="name" class="input-group-text w-50">User Name</label>
-				<input type="text" id="name" class="form-control" name="name" maxlength="50" required <%=userData.name?`value=${userData.name}` : ``%>
-					<%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
+				<input type="text" id="name" class="form-control" name="name" <%=userData.name?`value=${userData.name}` : ``%> <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
 			</div>
-			<div class="invalid-feedback">User Name is required.</div>
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-6 col-sm-12 mb-4">
+		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="email">Email:</label>
-				<input type="email" id="email" class="form-control" name="email" maxlength="255" pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$" required
-					<%=userData.email?`value=${userData.email}` : ``%> <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
+				<input type="text" id="email" class="form-control" name="email" <%=userData.email?`value=${userData.email}` : ``%> <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
 			</div>
-			<div class="invalid-feedback">Email must be a valid email.</div>
 		</div>
-		<div class="col-md-6 col-sm-12 mb-4">
+		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="selectDivision">Division: </label>
-				<select name="division_id" class="form-select" id="selectDivision" required <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
-					<option value="1" <%=userData.role===1? 'selected' :'' %>>1 - User</option>
-					<option value="2" <%=userData.role===2? 'selected' :'' %>>2 - Admin</option>
-					<option value="3" <%=userData.role===3? 'selected' :'' %>>3 - Manager</option>
+				<select name="division_id" class="form-select" id="selectDivision" <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
+					<!-- <option v-for="(item, index) in divisionsList" :key="index" :value="item.id">{{item.name}}</option> -->
 				</select>
 			</div>
-			<div class="invalid-feedback">Please choose a division.</div>
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-6 col-sm-12 mb-4">
+		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label for="entered_date" class="input-group-text w-50">Entered Date</label>
 				<input type="text" id="entered_date" class="form-control" name="entered_date" <%=userData.entered_date?`value=${userData.entered_date}` : ``%>
 					<%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
 			</div>
 		</div>
-		<div class="col-md-6 col-sm-12 mb-4">
+		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="selectPosition">Position: </label>
-				<select name="position_id" class="form-select" id="selectPosition" required <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
-					<option value="1" <%=userData.role===1? 'selected' :'' %>>1 - User</option>
-					<option value="2" <%=userData.role===2? 'selected' :'' %>>2 - Admin</option>
-					<option value="3" <%=userData.role===3? 'selected' :'' %>>3 - Manager</option>
+				<select name="position_id" class="form-select" id="selectPosition" <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
+					<!-- <option v-for="(item, index) in posList" :key="index" :value="item.id">{{item.name}}</option> -->
 				</select>
 			</div>
-			<div class="invalid-feedback">Please choose a position.</div>
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-6 col-sm-12 mb-4">
+		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="password">Password:</label>
-				<input type="password" id="password" class="form-control" name="password" data-bs-showcounter="true" minlength="8" maxlength="20"
-					pattern="^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,20}$" required />
+				<input type="password" id="password" class="form-control" name="password">
 			</div>
-			<div class="invalid-feedback">Must between 8-20 letters, at least 1 numeric and a special character "@#$%^"</div>
 		</div>
-		<div class="col-md-6 col-sm-12 mb-4">
+		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="retype">Password Confirmation:</label>
-				<input type="password" id="retype" class="form-control" name="retype" data-bs-showcounter="true" minlength="8" maxlength="20" oninput="checkPasswordMatch(this);" required />
+				<input type="password" id="retype" class="form-control" name="retype">
 			</div>
-			<div class="invalid-feedback">Retype must match password.</div>
 		</div>
 	</div>
 
 	<!-- events buttons -->
-	<button type="button" class="btn btn-outline-success btn-block mb-4">Register</button>
-	<button type="button" class="btn btn-outline-primary btn-block mb-4">Update</button>
-	<button type="button" class="btn btn-outline-danger btn-block mb-4">Delete</button>
-	<button type="button" class="btn btn-outline-secondary btn-block mb-4">Cancel</button>
+	<button type="button" class="btn btn-outline-success me-2 mb-4" id="registerBtn">Register</button>
+	<button type="button" class="btn btn-outline-primary me-2 mb-4" id="updateBtn">Update</button>
+	<button type="button" class="btn btn-outline-danger me-2 mb-4" id="deleteBtn">Delete</button>
+	<a href="/admin/users/list" class="btn btn-outline-secondary me-2 mb-4" id="cancelBtn">Cancel</a>
 </form>

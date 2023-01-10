@@ -4,10 +4,10 @@
 			<!-- start form -->
 			<form action="/admin/users/search" method="get" id="searchForm" class="">
 				<div class="row justify-content-between">
-					<div class="col-md-6 col-sm-12 mb-3">
+					<div class="col-md-6 col-sm-12 mb-3 validate-wrapper">
 						<div class="input-group">
 							<label class="input-group-text">User Name</label>
-							<input type="text" class="form-control" id="name" maxlength="100" name="name" <%=queryBack.name? `value=${queryBack.name}` : `` %>>
+							<input type="text" class="form-control" id="name" name="name" <%=queryBack.name? `value=${queryBack.name}` : `` %>>
 						</div>
 					</div>
 				</div>

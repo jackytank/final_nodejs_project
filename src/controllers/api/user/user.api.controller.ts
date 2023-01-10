@@ -72,18 +72,11 @@ class UserApiController {
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
-        const { name, username, password, email, role } = req.body;
+        const { name, entered_date, password, email, position_id, division_id } = req.body;
         const user: User = Object.assign(new User(), {
-            name,
-            username,
-            password,
-            email,
-            role,
+            name, entered_date, password, email, position_id, division_id
         });
-        const result = await this.userService.insertData(user, null, queryRunner, {
-            wantValidate: false,
-            isPasswordHash: true,
-        });
+        const result: CustomEntityApiResult<User> = await this.userService.insertData(user, null, queryRunner, { wantValidate: true, isPasswordHash: true });
         return res.status(200).json(result);
     }
     async update(req: Request, res: Response) {
