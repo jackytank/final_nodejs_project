@@ -237,6 +237,10 @@ $(function () {
         });
 
         searchForm.validate({
+            onfocusout: function (element) {
+                // "eager" validation
+                this.element(element);
+            },
             errorElement: "span",
             errorClass: 'text-danger',
             errorPlacement: function (error, element) {
