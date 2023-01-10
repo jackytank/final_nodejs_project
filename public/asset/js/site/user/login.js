@@ -100,8 +100,6 @@ $(function () {
                 },
             }
         });
-
-        // already validate input fields with mdbootstrap styles in site/common.js
     }
 
     function events() {
