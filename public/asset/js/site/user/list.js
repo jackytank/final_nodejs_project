@@ -39,37 +39,6 @@ $(function () {
         invalidFromEl = $('#invalidFrom');
         invalidToEl = $('#invalidTo');
 
-        // utility
-        openErrorModalWithMsg = (modalId, modalMsgId, modalOkBtnId, status, message, messages, wantReload) => {
-            const errorModalEl = document.querySelector(`#${modalId || 'errorModal'}`);
-            const errorModalBodyEl = document.querySelector(`#${modalMsgId || 'errorModalMessage'}`);
-            const errorModalOkBtn = document.querySelector(`#${modalOkBtnId || 'errorModalOkBtn'}`);
-            let _msg = ``;
-            if (message) {
-                _msg = `
-                        <h3>${status || ''}</h3>
-                        <p>${message}</p>
-                     `;
-            }
-
-            if (messages) {
-                _msg = `
-                        <h3>${status || ''}</h3>
-                        <ul class="text-center">
-                            ${messages.map(msg => `<li class="row">${msg}</li>`)}
-                        </ul>
-                    `;
-            }
-            errorModalBodyEl.innerHTML = _msg;
-            const modal = new bootstrap.Modal(errorModalEl, {});
-            modal.show();
-            if (wantReload) {
-                errorModalOkBtn.addEventListener('click', () => {
-                    location.reload();
-                });
-            }
-        };
-
         const table = usersTableElement.DataTable({
             lengthChange: false, // disable show entries
             pagingType: 'full_numbers', // have first, previous, next, last and numbers
@@ -140,7 +109,6 @@ $(function () {
                     exportCsvBtnEl.show();
                     usersTableElement.find('thead tr th span').show();
                 }
-                console.log(oSettings);
             },
             columnDefs: [
                 {
@@ -206,6 +174,8 @@ $(function () {
         });
     }
     function validation() {
+        const strongDateRegex = DATE_REGEX;
+
         // add validate methods - START
         $.validator.addMethod('isValidCsvFile',
             function (value, el) {
@@ -240,7 +210,17 @@ $(function () {
             // return isNaN(value) && isNaN($(params).val()) || (Number(value) <= Number($(params).val()));
         });
         $.validator.addMethod('isValidDate', function (value, element, params) {
-            return this.optional(element) || /^(\d{4})[\/](0?[1-9]|1[012])[\/](0?[1-9]|[12][0-9]|3[01])$/.test(value);
+            return this.optional(element) || strongDateRegex.test(value);
+        });
+
+        let nameMaxLength = 0;
+        let nameCurLength = 0;
+        $.validator.addMethod('checkNameMaxLength', function (value, element, params) {
+            nameCurLength = value.length;
+            nameMaxLength = params.length;
+            return value.length <= params.length;
+        }, function () {
+            return messages.ECL002('Password', nameMaxLength, nameCurLength);
         });
         // add validate methods - END
 
@@ -264,6 +244,9 @@ $(function () {
                 element.closest('.validate-wrapper').append(error);
             },
             rules: {
+                name: {
+                    checkNameMaxLength: { length: 100 }
+                },
                 enteredDateFrom: {
                     isValidDate: true,
                     dateGreaterThanEqual: '#enteredDateTo'
@@ -274,11 +257,11 @@ $(function () {
             },
             messages: {
                 enteredDateFrom: {
-                    isValidDate: messages.ECL008('ENTERED DATE FROM'),
-                    dateGreaterThanEqual: messages.ECL069('ENTERED DATE '),
+                    isValidDate: messages.ECL008('Entered Date From'),
+                    dateGreaterThanEqual: messages.ECL069('Entered Date '),
                 },
                 enteredDateTo: {
-                    isValidDate: messages.ECL008('ENTERED DATE TO'),
+                    isValidDate: messages.ECL008('Entered Date To'),
                 }
             }
         });
@@ -350,7 +333,6 @@ $(function () {
                         // console.log('Return data: ', JSON.stringify(data, null, 4));
                     },
                     error: function (req, stat, err) {
-                        console.log(req);
                         openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', req.status || req.responseJSON.status, req.responseJSON.message, req.responseJSON.messages, false
                         );
                     },

@@ -5,8 +5,8 @@ $(function () {
      */
     $(document).ready(function () {
         init();
-        events();
         formValidation();
+        events();
     });
 
     /**
@@ -57,7 +57,13 @@ $(function () {
 
 
         $('#loginForm').validate({
-            lang: 'jp',
+            onfocusout: function (element) {
+                // "eager" validation
+                this.element(element);
+            },
+            // onkeyup: function (element) {
+            //     this.element(element);
+            // },
             errorElement: 'span',
             errorClass: 'has-error',
             highlight: function (element, errorClass) {

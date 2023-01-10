@@ -16,7 +16,7 @@
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="email">Email:</label>
-				<input type="email" id="email" class="form-control" name="email" <%=userData.email?`value=${userData.email}` : ``%> <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
+				<input type="text" id="email" class="form-control" name="email" <%=userData.email?`value=${userData.email}` : ``%> <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
 			</div>
 		</div>
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
@@ -61,8 +61,8 @@
 	</div>
 
 	<!-- events buttons -->
-	<button type="submit" class="btn btn-outline-success me-2 mb-4" id="registerBtn">Register</button>
+	<button type="button" class="btn btn-outline-success me-2 mb-4" id="registerBtn">Register</button>
 	<button type="button" class="btn btn-outline-primary me-2 mb-4" id="updateBtn">Update</button>
 	<button type="button" class="btn btn-outline-danger me-2 mb-4" id="deleteBtn">Delete</button>
-	<button type="button" class="btn btn-outline-secondary me-2 mb-4" id="cancelBtn">Cancel</button>
+	<a href="/admin/users/list" class="btn btn-outline-secondary me-2 mb-4" id="cancelBtn">Cancel</a>
 </form>
