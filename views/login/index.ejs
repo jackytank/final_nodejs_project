@@ -34,8 +34,8 @@
 									</form>
 									<!-- end form -->
 									<% if (typeof message !== 'undefined' && message !== '') { %>
-									<div id="errorMessage" class="alert alert-danger" role="alert">
-										<%- message  %>
+									<div id="errorMessage">
+										<div class="alert alert-danger" role="alert"><%- message  %></div>
 									</div>
 									<% } %>
 								</div>
