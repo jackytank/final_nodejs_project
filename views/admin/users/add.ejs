@@ -2,6 +2,7 @@
 	<div class="container">
 		<%- include('./_form.ejs', {
             formMethod: 'POST',
+			formPurpose: 'addUser',
             userData: dataBack
         }) %>
 	</div>
@@ -9,7 +10,7 @@
 
 <script src="/asset/js/site/user/addAndEdit.js"></script>
 
-<script type="module">
+<!-- <script type="module">
 import {
 	createApp
 } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
@@ -33,8 +34,8 @@ createApp({
 			})
 	}
 }).mount('#vue-add-app')
-</script>
+</script> -->
 
 
 <%- contentFor('pageTitle') %>
-Add
+UserAddEditDelete

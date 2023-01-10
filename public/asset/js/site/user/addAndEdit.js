@@ -33,17 +33,20 @@ $(function () {
         selectPosition = $(selectPositionIdStr);
 
         function initAndPopulateData() {
+            const renderedUserPosition = selectPosition.data('userPositionId'); // data-user-position-id="23232"
+            const renderedUserDivision = selectDivision.data('userDivisionId'); // data-user-division-id="23232"
             // call api then populate the data to select devision
             fetch('/api/admin/divisions')
                 .then((res) => res.json())
                 .then((data) => {
                     data.data.forEach((div) => {
-                        selectDivision.append($('<option />').val(div.id).text(div.name));
+                        selectDivision.append(`<option value="${div.id}" ${div.id === renderedUserDivision ? 'selected' : ''}>${div.name}</option>`);
                     });
                 });
             // POS_ARR is in site/common.js
             POS_ARR.forEach((div) => {
-                selectPosition.append($('<option />').val(div.id).text(div.name));
+                // when server render ejs <select> tag will have data-user-position-id, set <option> selected if div.id equal to that id
+                selectPosition.append(`<option value="${div.id}" ${div.id === renderedUserPosition ? 'selected' : ''}>${div.name}</option>`);
             });
         }
         initAndPopulateData();
@@ -76,7 +79,10 @@ $(function () {
         });
 
         formElement.validate({
-            lang: 'jp',
+            onfocusout: function (element) {
+                // "eager" validation
+                this.element(element);
+            },
             errorElement: 'span',
             errorClass: 'has-error',
             highlight: function (element, errorClass) {
@@ -107,6 +113,7 @@ $(function () {
                     maxlength: 20,
                 },
                 "retype": {
+                    required: true,
                     equalTo: "#password",
                     is1ByteChar: true,
                     minlength: 8,
@@ -175,8 +182,8 @@ $(function () {
         //     });
         //     return true;
         // });
-        $(document).on('click', registerIdStr, function (value) {
-            // if (formElement.valid()) {
+        $(document).on('click', registerIdStr, function (e) {
+            if (formElement.valid()) {
                 $.LoadingOverlay("show");
                 const formData = {
                     name: $(`form${formIdStr} input[name=name]`).val(),
@@ -185,25 +192,51 @@ $(function () {
                     entered_date: $(`form${formIdStr} input[name=entered_date]`).val(),
                     position_id: $(`form${formIdStr} select[name=position_id]`).val(),
                     password: $(`form${formIdStr} input[name=password]`).val(),
+                    retype: $(`form${formIdStr} input[name=retype]`).val(),
                 };
-                console.log(formData);
+                // console.log(formData);
                 $.ajax({
                     method: 'POST',
-                    enctype: 'multipart/form-data',
-                    url: window.location.pathname, // /admin/users/addPage
+                    // enctype: 'multipart/form-data',
+                    url: '/api/admin/users', // /admin/users/addPage
                     data: formData,
                     dataType: "json",
                     cache: false,
-                    success: function (data) {
+                    success: function (res) {
                         $.LoadingOverlay("hide");
-                        openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', data.status, data.message, data.messages, true);
+                        // alert('success');
+                        // console.log(res);
+                        openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.status, res.message, null, true);
                     },
-                    error: function (req, stat, err) {
+                    error: function (res, stat, err) {
                         $.LoadingOverlay("hide");
-                        openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', req.status || req.responseJSON.status, req.responseJSON.message, req.responseJSON.messages, false);
+                        // alert('failed');
+                        console.log(res);
+                        openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.statusText, res.responseJSON.message, null, false);
                     },
                 });
-            // }
+            }
+        });
+
+        $(document).on('click', deleteIdStr, function (e) {
+            (async () => {
+                const userIdToDelete = formElement.find('#userIdToDelete').data('userId'); // ex: data-user-id="287374"
+                const isConfirmed = await confirmModal(`Are you sure want to delete user: ${userIdToDelete}?`);
+                if (isConfirmed) {
+                    $.ajax({
+                        method: 'DELETE',
+                        // enctype: 'multipart/form-data',
+                        url: `/api/admin/users/${userIdToDelete}`,
+                        cache: false,
+                        success: function (res) {
+                            openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.status, res.message, null, true);
+                        },
+                        error: function (res, stat, err) {
+                            openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.statusText, res.responseJSON.message, null, false);
+                        },
+                    });
+                }
+            })();
         });
     }
 });

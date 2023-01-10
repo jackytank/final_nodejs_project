@@ -9,6 +9,7 @@ import { CustomEntityApiResult, CustomDataTableResult, CustomValidateResult, Cus
 import { Division } from '../../entities/division.entity';
 import { isValidDate, setAllNull } from '../../utils/common';
 import { AppDataSource } from '../../DataSource';
+import { messages } from '../../constants';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class UserService {
@@ -168,6 +169,7 @@ export class UserService {
                 } else {
                     b.orWhere('user.email = :email', { email: `${user.email}` });
                 }
+                findUsers = await b.getMany();
             } else {
                 if (user.id) {
                     findUsers = dbData.filter(data => data.email === user.email && data.id !== user.id);
@@ -177,7 +179,7 @@ export class UserService {
             }
             if (findUsers.length > 0) {
                 result = Object.assign({}, {
-                    message: 'Email is already exist!',
+                    message: messages.ECL019,
                     isValid: false,
                     datas: findUsers,
                 },);
@@ -185,7 +187,6 @@ export class UserService {
             }
         }
         return {
-            message: 'Email is unique!',
             isValid: true,
             datas: findUsers,
         };
@@ -206,6 +207,7 @@ export class UserService {
             }
         }
         user.created_date = new Date();
+        user.updated_date = new Date();
         // hash pass if isPasswordHash is true, incase of insert data from csv file (already had pass)
         if (options.isPasswordHash) {
             const hashed = await hashPassword(user.password);

@@ -76,8 +76,19 @@ class UserApiController {
         const user: User = Object.assign(new User(), {
             name, entered_date, password, email, position_id, division_id
         });
-        const result: CustomEntityApiResult<User> = await this.userService.insertData(user, null, queryRunner, { wantValidate: true, isPasswordHash: true });
-        return res.status(200).json(result);
+        try {
+            const result: CustomEntityApiResult<User> = await this.userService.insertData(user, null, queryRunner, { wantValidate: true, isPasswordHash: true });
+            if (result.status !== 200) {
+                return res.status(result.status as number).json({ status: result.status, message: result.message ?? 'Error when inserting user!' });
+            }
+            await queryRunner.commitTransaction();
+            return res.status(200).json({ status: 200, message: result.message ?? 'Success inserting user!' });
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            return res.status(500).json({ status: 500, message: 'Error when inserting user!' });
+        } finally {
+            await queryRunner.release();
+        }
     }
     async update(req: Request, res: Response) {
         const queryRunner = AppDataSource.createQueryRunner();

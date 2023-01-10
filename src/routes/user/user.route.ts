@@ -7,6 +7,7 @@ const userRouter = express.Router();
 
 // check permission for all routes
 userRouter.use('/edit/:id', allowOnlyGeDi({ resAsApi: false }));
+userRouter.use('/addPage', allowOnlyGeDi({ resAsApi: false }));
 
 // base path: /admin/users/
 userRouter.get('/addPage', AdminUserController.addPage);

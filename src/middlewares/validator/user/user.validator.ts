@@ -37,8 +37,15 @@ export const userExpressValidationRule = (options: { hasRetype: boolean; hasPass
             .isEmail().withMessage(errMsg.ERR003('email'))
             .trim(),
         body('position_id')
+            .customSanitizer((value) => {
+                return (typeof value === 'string') ? parseInt(value) : value;
+            })
             .isIn(Object.values(PosEnum).concat(Object.values(PosEnum).map((n) => n + "")))  // Ex: [1, 2, 3, '1', '2', '3']
             .withMessage(errMsg.ERR003('position_id')),
+        body('division_id')
+            .customSanitizer((value) => {
+                return (typeof value === 'string') ? parseInt(value) : value;
+            })
     ];
 
     if (options.hasPass) {
@@ -83,4 +90,12 @@ export const expressValidateUser = (req: Request, res: Response, next: NextFunct
     req.flash('dataBack', req.body); // return req.body data back to front-end
     res.redirect(req.originalUrl);
 };
+
+export const apiValidateUser = (req: Request, res: Response, next: NextFunction) => {
+    const errorsList = extractErrors(req);
+    if (errorsList.length === 0) {
+        return next();
+    }
+    res.status(400).json({ messages: errorsList, status: 400 });
+}
 

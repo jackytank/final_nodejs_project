@@ -52,12 +52,13 @@
     <%- include('../common/modal/errorModal', {message:message??''}) %>
     <script>
         const errorModal = document.querySelector('#errorModal');
-        const modal = new mdb.Modal(errorModal);
+        const modal = new bootstrap.Modal(errorModal,{});
         modal.show()
     </script>
     <% } else{%>
         <%- include('../common/modal/errorModal') %>
     <% } %> 
+    <%- include('../common/modal/confirmModal') %>
     <!-- custom script will be injected here from html view file by express-ejs-layout -->
     <%- script %>
 

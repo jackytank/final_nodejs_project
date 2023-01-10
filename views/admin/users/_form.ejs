@@ -3,6 +3,11 @@
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label for="name" class="input-group-text w-50">ID</label>
+				<% if (typeof formPurpose !== 'undefined') { %>
+				<% if (formPurpose === 'editUser') { %>
+				<label class="form-control" data-user-id="<%= userData.id %>" id="userIdToDelete"><%= userData.id %></label>
+				<% } %>
+				<% } %>
 			</div>
 		</div>
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
@@ -22,7 +27,7 @@
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="selectDivision">Division: </label>
-				<select name="division_id" class="form-select" id="selectDivision" <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
+				<select data-user-division-id="<%= userData.division_id %>" name="division_id" class="form-select" id="selectDivision" <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
 					<!-- <option v-for="(item, index) in divisionsList" :key="index" :value="item.id">{{item.name}}</option> -->
 				</select>
 			</div>
@@ -39,7 +44,7 @@
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="selectPosition">Position: </label>
-				<select name="position_id" class="form-select" id="selectPosition" <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
+				<select data-user-position-id="<%= userData.position_id %>" name="position_id" class="form-select" id="selectPosition" <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
 					<!-- <option v-for="(item, index) in posList" :key="index" :value="item.id">{{item.name}}</option> -->
 				</select>
 			</div>
@@ -61,8 +66,18 @@
 	</div>
 
 	<!-- events buttons -->
+
+	<% if (typeof formPurpose !== 'undefined') { %>
+
+	<% if (formPurpose === 'addUser') { %>
 	<button type="button" class="btn btn-outline-success me-2 mb-4" id="registerBtn">Register</button>
+	<% } %>
+
+	<% if (formPurpose === 'editUser') { %>
 	<button type="button" class="btn btn-outline-primary me-2 mb-4" id="updateBtn">Update</button>
 	<button type="button" class="btn btn-outline-danger me-2 mb-4" id="deleteBtn">Delete</button>
+	<% } %>
+
+	<% } %>
 	<a href="/admin/users/list" class="btn btn-outline-secondary me-2 mb-4" id="cancelBtn">Cancel</a>
 </form>

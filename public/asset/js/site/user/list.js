@@ -39,6 +39,7 @@ $(function () {
         invalidFromEl = $('#invalidFrom');
         invalidToEl = $('#invalidTo');
 
+        // hide table header before datatable load data (cuz 0 data so hide header)
         const table = usersTableElement.DataTable({
             lengthChange: false, // disable show entries
             pagingType: 'full_numbers', // have first, previous, next, last and numbers

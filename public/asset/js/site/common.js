@@ -683,4 +683,43 @@ const openErrorModalWithMsg = (modalId, modalMsgId, modalOkBtnId, status, messag
   }
 };
 
+/**
+ * pass an callback function to this function to handle user confirm/cancel click events, return true if confirmed, otherwise return false
+ * @param {*} message if not provided will show empty string ""
+ * @param {*} modalId if not provided use default id "confirmModal" in common/modal/confirmModal instead
+ * @param {*} modalMsgId if not provided use default id "confirmModalMessage" in common/modal/confirmModal instead
+ * @param {*} confirmBtnId if not provided use default id "confirmModalConfirmBtn" in common/modal/confirmModal instead
+ * @param {*} cancelBtnId if not provided use default id "confirmModalCancelBtn" in common/modal/confirmModal instead
+ * @param {*} handler callback return true if Confirm btn is pressed, otherwise return false
+ */
+const confirmModal = (message) => {
+  const modalEl = document.querySelector(`#confirmModal`);
+  const modalMsgEl = document.querySelector(`#confirmModalMessage`);
+  const confirmBtnEl = document.querySelector(`#confirmModalConfirmBtn`);
+  const cancelBtnEl = document.querySelector(`#confirmModalCancelBtn`);
+
+  let _msg = ``;
+  if (message) {
+    _msg = `<p>${message ?? ""}</p>`;
+  }
+  modalMsgEl.innerHTML = _msg;
+  const modal = new bootstrap.Modal(modalEl, {
+    keyboard: false,
+    backdrop: 'static'
+  });
+  modal.show();
+  return new Promise((resolve, reject) => {
+    confirmBtnEl.addEventListener('click', () => {
+      resolve(true);
+    });
+    cancelBtnEl.addEventListener('click', () => {
+      resolve(false);
+    });
+    modalEl.addEventListener('hidden.bs.modal', (event) => {
+      resolve(false);
+    });
+  });
+
+};
+
 // tri - my own custom script - END
