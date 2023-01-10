@@ -13,10 +13,6 @@ $(function () {
      * Form validation
      */
     function init() {
-        // disabled resubmit confirm form
-        if (window.history.replaceState) {
-            window.history.replaceState(null, null, window.location.href);
-        }
         // if don't specify the scope (let, const) the variable will be global
         email = $('#email');
         password = $('#password');
@@ -78,7 +74,7 @@ $(function () {
             },
             errorPlacement: function (err, el) {
                 err.addClass('help-block').appendTo(el.parent());
-                $('#errorMessage').html('');
+                $('#errorMessage').hide();
             },
             rules: {
                 password: {
