@@ -72,12 +72,6 @@ $(function () {
         $.validator.addMethod('checkValidEmail', function (value, element) {
             return normalEmailRegex.test(value);
         });
-        $.validator.addMethod('isValidDate', function (value, element, params) {
-            return this.optional(element) || strongDateRegex.test(value);
-        });
-        $.validator.addMethod('isValidPassword', function (value, element, params) {
-            return /^[a-z0-9]+$/.test(value);
-        });
         $.validator.addMethod('is1ByteChar', function (value, element, params) {
             const arr = Array.from(value);
             let is1Byte = true;
@@ -90,6 +84,9 @@ $(function () {
                 }
             });
             return is1Byte;
+        });
+        $.validator.addMethod('isValidDate', function (value, element, params) {
+            return strongDateRegex.test(value);
         });
         $.validator.addMethod('checkNameMaxLength', function (value, element, params) {
             return value.length <= nameMaxLength;
@@ -104,6 +101,9 @@ $(function () {
         });
 
         const registerValidate = () => {
+            $.validator.addMethod('isValidPassword', function (value, element, params) {
+                return /^[a-z0-9]+$/.test(value);
+            });
             formElement.validate({
                 onfocusout: function (element) {
                     // "eager" validation
@@ -199,6 +199,9 @@ $(function () {
         };
 
         const updateValidate = () => {
+            $.validator.addMethod('isValidPassword', function (value, element, params) {
+                return this.optional(element) || /^[a-z0-9]+$/.test(value);
+            });
             formElement.validate({
                 onfocusout: function (element) {
                     // "eager" validation
@@ -232,18 +235,16 @@ $(function () {
                         is1ByteChar: true,
                         minlength: function () {
                             const curVal = $(passwordIdStr).val();
-                            console.log(curVal.length)
                             if (curVal.length === 0) {
-                                return 1;
+                                return 0;
                             } else {
                                 return 8;
                             }
                         },
                         maxlength: function () {
                             const curVal = $(passwordIdStr).val();
-                            console.log(curVal.length)
                             if (curVal.length === 0) {
-                                return 1;
+                                return 0;
                             } else {
                                 return 20;
                             }
@@ -259,7 +260,7 @@ $(function () {
                         is1ByteChar: true,
                         minlength: function () {
                             const curVal = $(retypeIdStr).val();
-                            console.log(curVal.length)
+                            console.log(curVal.length);
                             if (curVal.length === 0) {
                                 return 0;
                             } else {
@@ -268,7 +269,7 @@ $(function () {
                         },
                         maxlength: function () {
                             const curVal = $(retypeIdStr).val();
-                            console.log(curVal.length)
+                            console.log(curVal.length);
                             if (curVal.length === 0) {
                                 return 0;
                             } else {
@@ -408,7 +409,6 @@ $(function () {
         });
 
         $(document).on('click', updateIdStr, function (e) {
-            isPassRetypeOptional = true;
             if (formElement.valid()) {
                 $.LoadingOverlay("show");
                 const userIdToUpdate = formElement.find('#userIdToDeleteAndUpdate').data('userId'); // ex: data-user-id="287374"
@@ -430,14 +430,12 @@ $(function () {
                     dataType: "json",
                     cache: false,
                     success: function (res) {
-                        isPassRetypeOptional = false;
                         $.LoadingOverlay("hide");
                         // alert('success');
                         // console.log(res);
                         openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.status, res.message, res.messages, true);
                     },
                     error: function (res, stat, err) {
-                        isPassRetypeOptional = false;
                         $.LoadingOverlay("hide");
                         // alert('failed');
                         console.log(res);
