@@ -11,9 +11,9 @@ userRouter.use('/addPage', allowOnlyGeDi({ resAsApi: false }));
 
 // base path: /admin/users/
 userRouter.get('/addPage', AdminUserController.addPage);
-userRouter.post('/addPage', userExpressValidationRule({ hasRetype: true, hasPass: true }), expressValidateUser, AdminUserController.createNewUser); // add middleware for validate req.body and is exist username, email
+userRouter.post('/addPage', userExpressValidationRule({ hasRetype: true, hasPass: true, passAndRetypeOptional: false }), expressValidateUser, AdminUserController.createNewUser); // add middleware for validate req.body and is exist username, email
 userRouter.get('/edit/:id', AdminUserController.editPage);
-userRouter.post('/edit/:id', userExpressValidationRule({ hasRetype: false, hasPass: false }), expressValidateUser, AdminUserController.update);
+// userRouter.post('/edit/:id', userExpressValidationRule({ hasRetype: false, hasPass: false }), expressValidateUser, AdminUserController.update);
 userRouter.get('/list', AdminUserController.listPage);
 
 export default userRouter;

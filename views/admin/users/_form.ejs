@@ -1,11 +1,11 @@
-<form id="addEditDeleteForm" class="" method="<%= formMethod %>">
+<form id="addEditDeleteForm" class="" method="<%= formMethod %>" data-form-purpose="ejsout">
 	<div class="row">
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label for="name" class="input-group-text w-50">ID</label>
 				<% if (typeof formPurpose !== 'undefined') { %>
 				<% if (formPurpose === 'editUser') { %>
-				<label class="form-control" data-user-id="<%= userData.id %>" id="userIdToDelete"><%= userData.id %></label>
+				<label class="form-control" data-user-id="<%= userData.id %>" id="userIdToDeleteAndUpdate"><%= userData.id %></label>
 				<% } %>
 				<% } %>
 			</div>

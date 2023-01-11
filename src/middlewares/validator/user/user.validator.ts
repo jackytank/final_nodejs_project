@@ -1,67 +1,128 @@
-import { body, validationResult } from 'express-validator';
+import { body, check, ValidationChain, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
-import { blackListWords, errMsg } from '../../../constants';
+import { blackListWords, errMsg, messages } from '../../../constants';
 import { PosEnum } from '../../../entities/user.entity';
 import DOMPurify from 'isomorphic-dompurify';
+import eastasianwidth from '../../../utils/eastasianwidth';
+
 /**
  * 
  * @param options if hasRetype is true then retype must be equal to password, if hasPass is true then password must be provided
  * @returns return an array of express-validator rules for user validation
  */
-export const userExpressValidationRule = (options: { hasRetype: boolean; hasPass: boolean; }) => {
+export const userExpressValidationRule = (options: { hasRetype: boolean; hasPass: boolean; passAndRetypeOptional: boolean; }) => {
     // task validation: https://redmine.bridevelopment.com/issues/106778
     const ruleArr = [
         body('name')
             .customSanitizer((value) => {
                 return DOMPurify.sanitize(value);
             })
-            .custom((value, { req }) => {
-                return blackListWords.some((word) => value.includes(word)) ? false : true;
-            }).withMessage(errMsg.ERR008('name'))
-            .isLength({ min: 5, max: 100 }).withMessage(errMsg.ERR009('name', 5))
             .not()
-            .isEmpty().withMessage(errMsg.ERR001('name'))
-            .trim(),
-        body('retype')
+            .isEmpty().withMessage(messages.ECL001('User Name'))
+            .bail()
             .custom((value, { req }) => {
-                return options.hasRetype ? value === req.body.password : true;
+                if (eastasianwidth.isStringContainsFullWidth(value)) {
+                    return Promise.reject(messages.ECL004('User Name'));
+                }
+                return Promise.resolve(true);
             })
-            .withMessage(errMsg.ERR004('retype', 'password'))
+            .bail()
+            .custom((value, { req }) => {
+                const maxLength = 50;
+                if (value.length > maxLength) {
+                    return Promise.reject(messages.ECL002('User Name', maxLength, value.length));
+                }
+                return Promise.resolve(true);
+            })
             .trim(),
         body('email')
             .customSanitizer((value) => {
                 return DOMPurify.sanitize(value);
             })
-            .isLength({ max: 255 })
+            .not()
+            .isEmpty().withMessage(messages.ECL001('Email'))
+            .bail()
+            .custom((value, { req }) => {
+                if (eastasianwidth.isStringContainsFullWidth(value)) {
+                    return Promise.reject(messages.ECL004('Email'));
+                }
+                return Promise.resolve(true);
+            })
+            .bail()
+            .custom((value, { req }) => {
+                const maxLength = 255;
+                if (value.length > maxLength) {
+                    return Promise.reject(messages.ECL002('Email', maxLength, value.length));
+                }
+                return Promise.resolve(true);
+            })
+            .bail()
+            .isEmail().withMessage(messages.ECL005)
             .normalizeEmail() // Ex: @gMaiL.CoM -> @gmail.com, lowercase domain part because it case-insensitive
-            .isEmail().withMessage(errMsg.ERR003('email'))
             .trim(),
         body('position_id')
             .customSanitizer((value) => {
                 return (typeof value === 'string') ? parseInt(value) : value;
             })
+            .not()
+            .isEmpty().withMessage(messages.ECL001('Position'))
+            .bail()
             .isIn(Object.values(PosEnum).concat(Object.values(PosEnum).map((n) => n + "")))  // Ex: [1, 2, 3, '1', '2', '3']
             .withMessage(errMsg.ERR003('position_id')),
         body('division_id')
             .customSanitizer((value) => {
                 return (typeof value === 'string') ? parseInt(value) : value;
             })
+            .not()
+            .isEmpty().withMessage(messages.ECL001('Division')),
+        body('entered_date')
+            .optional()
+            .not()
+            .isEmpty().withMessage(messages.ECL001('Entered Date'))
+            .bail()
+            .custom((value, { req }) => {
+                if (eastasianwidth.isStringContainsFullWidth(value)) {
+                    return Promise.reject(messages.ECL004('Entered Date'));
+                }
+                return Promise.resolve(true);
+            })
+            .bail()
+            .isDate({ delimiters: ['/'], format: 'YYYY/MM/DD', strictMode: true }).withMessage(messages.ECL008('Entered Date')),
+        body('password')
+            .optional({ checkFalsy: true })
+            .not()
+            .isEmpty().withMessage(messages.ECL001('Password'))
+            .bail()
+            .isLength({ min: 8, max: 20 }).withMessage(messages.ECL023)
+            .bail()
+            .custom((value, { req }) => {
+                if (eastasianwidth.isStringContainsFullWidth(value)) {
+                    return Promise.reject(messages.ECL004('Password'));
+                }
+                return Promise.resolve(true);
+            })
+            .bail()
+            .trim(),
+        body('retype')
+            .optional({ checkFalsy: true })
+            .not()
+            .isEmpty().withMessage(messages.ECL001('Password Confirmation'))
+            .bail()
+            .isLength({ min: 8, max: 20 }).withMessage(messages.ECL023)
+            .bail()
+            .custom((value, { req }) => {
+                if (eastasianwidth.isStringContainsFullWidth(value)) {
+                    return Promise.reject(messages.ECL004('Password Confirmation'));
+                }
+                return Promise.resolve(true);
+            })
+            .bail()
+            .custom((value, { req }) => {
+                return value === req.body.password;
+            }).withMessage(messages.ECL030)
+            .trim()
     ];
 
-    if (options.hasPass) {
-        ruleArr.push(
-            body('password', errMsg.ERR002('password', 6, 20))
-                .customSanitizer((value) => {
-                    return DOMPurify.sanitize(value);
-                })
-                .custom((value, { req }) => {
-                    return blackListWords.some((word) => value.includes(word)) ? false : true;
-                }).withMessage(errMsg.ERR008('password'))
-                .isLength({ min: 6, max: 20 })
-                .not()
-                .isEmpty()
-                .trim());
-    }
     return ruleArr;
 };
 
@@ -96,6 +157,6 @@ export const apiValidateUser = (req: Request, res: Response, next: NextFunction)
     if (errorsList.length === 0) {
         return next();
     }
-    res.status(400).json({ messages: errorsList, status: 400 });
+    res.status(400).json({ messages: errorsList.map((err) => Object.values(err)), status: 400 });
 }
 

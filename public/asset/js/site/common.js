@@ -660,16 +660,16 @@ const openErrorModalWithMsg = (modalId, modalMsgId, modalOkBtnId, status, messag
   let _msg = ``;
   if (message) {
     _msg = `
-              <h3>${status || ''}</h3>
+              <h3>${''}</h3>
               <p>${message}</p>
            `;
   }
 
   if (messages) {
     _msg = `
-              <h3>${status || ''}</h3>
+              <h3>${''}</h3>
               <ul class="text-center">
-                  ${messages.map(msg => `<li class="row">${msg}</li>`)}
+                  ${messages.reduce((acc, curVal) => { return acc + `<li class="row">${curVal}</li>`; }, '')}
               </ul>
           `;
   }

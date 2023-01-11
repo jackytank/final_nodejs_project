@@ -1,4 +1,4 @@
-import { POS_NAME } from '../../../constants';
+import { messages, POS_NAME } from '../../../constants';
 import { CustomDataTableResult, CustomUserData } from '../../../customTypings/express/index';
 import { Request, Response } from 'express';
 import _ from 'lodash';
@@ -45,10 +45,10 @@ class UserApiController {
     async search(req: Request, res: Response) {
         try {
             // save req.query to session for export csv based on search query
-            const { name, enteredDateFrom, enteredDateTo } = req.query;
+            const { name, enteredDateFrom, enteredDateTo, draw } = req.query;
             req.session.searchQuery = req.query;
             let result: CustomDataTableResult = { draw: 0, data: [], recordsFiltered: 0, recordsTotal: 0 };
-            if (name || enteredDateFrom || enteredDateTo) {
+            if (parseInt(draw as string) !== 1) {
                 result = await this.userService.searchData({ ...req.query, name: validator.escape(req.query.name as string) });
                 if (isHasDup(result.data)) {
                     result.data = _.orderBy(result.data.map((user: CustomUserData) => {
@@ -77,15 +77,15 @@ class UserApiController {
             name, entered_date, password, email, position_id, division_id
         });
         try {
-            const result: CustomEntityApiResult<User> = await this.userService.insertData(user, null, queryRunner, { wantValidate: true, isPasswordHash: true });
+            const result: CustomEntityApiResult<User> = await this.userService.insertData(user, null, queryRunner, { checkUniqueMail: true, isPasswordHash: true });
             if (result.status !== 200) {
-                return res.status(result.status as number).json({ status: result.status, message: result.message ?? 'Error when inserting user!' });
+                return res.status(result.status as number).json({ status: result.status, message: result.message ?? messages.ECL093 });
             }
             await queryRunner.commitTransaction();
-            return res.status(200).json({ status: 200, message: result.message ?? 'Success inserting user!' });
+            return res.status(200).json({ status: 200, message: result.message ?? messages.ECL096 });
         } catch (error) {
             await queryRunner.rollbackTransaction();
-            return res.status(500).json({ status: 500, message: 'Error when inserting user!' });
+            return res.status(500).json({ status: 500, message: messages.ECL093 });
         } finally {
             await queryRunner.release();
         }
@@ -104,15 +104,18 @@ class UserApiController {
             email,
             role,
         });
-        const result = await this.userService.updateData(user, null, queryRunner, {
-            wantValidate: false,
-        });
+        const result = await this.userService.updateData(user, null, queryRunner, { checkUniqueMail: true, });
         return res.status(result.status as number).json(result);
     }
     async remove(req: Request, res: Response) {
         const id = parseInt(req.params.id);
-        const result = await this.userService.removeData(id);
-        return res.status(result.status as number).json(result);
+        const loginUserId = req.session.user?.id ?? req.user?.id;
+        if (loginUserId === id) {
+            return res.status(400).json({ message: messages.ECL086 });
+        } else {
+            const result: CustomEntityApiResult<User> = await this.userService.removeData(id);
+            return res.status(result.status as number).json(result);
+        }
     }
     async importCsv(req: Request, res: Response) {
         const queryRunner = AppDataSource.createQueryRunner();
@@ -222,10 +225,10 @@ class UserApiController {
                 deleteArr.map(async user => { await queryRunner.manager.remove<User>(user); }),
             );
             await Promise.all(
-                updateArr.map(async user => { await this.userService.updateData(user, dbData, queryRunner, { wantValidate: false, }); }),
+                updateArr.map(async user => { await this.userService.updateData(user, dbData, queryRunner, { checkUniqueMail: false, }); }),
             );
             await Promise.all(
-                insertArr.map(async user => { await this.userService.insertData(user, dbData, queryRunner, { wantValidate: false, isPasswordHash: false, }); }),
+                insertArr.map(async user => { await this.userService.insertData(user, dbData, queryRunner, { checkUniqueMail: false, isPasswordHash: false, }); }),
             );
             // delete, update, insert - END
 
@@ -250,49 +253,48 @@ class UserApiController {
         const { start, end } = bench();
         const query = req.session.searchQuery;
         if (!query?.name && !query?.enteredDateFrom && !query?.enteredDateTo) {
-            return res.status(400).json({ message: "You haven't search anything yet, failed to export!", status: 400 });
+            return res.status(400).json({ message: messages.ECL097, status: 400 });
         }
         const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(query, false); // set false to turn off offset,limit search criteria
-        const userList: User[] = await builder.getRawMany();
+        const userList: CustomUserData[] = await builder.getRawMany();
         // if list is empty then return 404
         // userList = [];
         if (userList.length === 0) {
-            return res.status(404).json({ message: 'No records found on search criteria entered!', status: 404 });
+            return res.status(404).json({ message: messages.ECL097, status: 404 });
         }
         start();
-        // userList.map((user: UserModel) => {
-        //     user['created_date'] = isValidDate(user['created_date']) ? dayjs(user['created_date']).format('YYYY/MM/DD') : '';
-        //     user['updated_date'] = isValidDate(user['updated_date']) ? dayjs(user['updated_date']).format('YYYY/MM/DD') : '';
-        //     switch (user['position_id'] as number | undefined) {
-        //         case 0: user['position_id'] = POS_NAME.GE_DI; break;
-        //         case 1: user['position_id'] = POS_NAME.GR_LE; break;
-        //         case 2: user['position_id'] = POS_NAME.LE; break;
-        //         case 3: user['position_id'] = POS_NAME.MEM; break;
-        //         default: break;
-        //     }
-
-        //     // user['password'] = user['password'].replace(/./g, '*'); // Ex: '123456' to '******'
-        // });
+        userList.map((user: CustomUserData) => {
+            user['Created Date'] = dayjs(user['Created Date']).format('YYYY-MM-DD');
+            user['Updated Date'] = dayjs(user['Created Date']).format('YYYY-MM-DD');
+            user['Entered Date'] = dayjs(user['Entered Date']).format('YYYY-MM-DD');
+            switch (user['Position'] as number | undefined) {
+                case 0: user['Position'] = POS_NAME.GE_DI; break;
+                case 1: user['Position'] = POS_NAME.GR_LE; break;
+                case 2: user['Position'] = POS_NAME.LE; break;
+                case 3: user['Position'] = POS_NAME.MEM; break;
+                default: user['Position'] = ''; break;
+            }
+        });
         const filename = `list_user_${dayjs(Date.now()).format('YYYYMMDDHHmmss',)}.csv`;
         const columns = Object.keys(userList[0]);
-        const columns_string = columns.toString().replace(/,/g, ',');
+        // const columns_string = columns.toString().replace(/,/g, ',');
         stringify(userList, {
-            // header: true,
+            header: true,
             columns: columns,
             delimiter: ',',
             quoted: true,
             quoted_empty: true,
         }, function (err, data) {
             if (err) {
-                res.status(500).json({ message: 'Internal Server Error\nFailed to export csv', status: 500 });
+                res.status(500).json({ message: messages.ECL097, status: 500 });
             }
             // data = '';
             // if list empty then export only header
             if (data.length === 0) {
-                data = columns_string + '\n';
-                res.status(200).json({ data: data, status: 200, message: 'Database is empty!', filename: filename });
+                // data = columns_string + '\n';
+                res.status(200).json({ data: data, status: 200, message: messages.ECL097, filename: filename });
             } else {
-                data = columns_string + '\n' + data;
+                // data = columns_string + '\n' + data;
                 end(); // end count time and log to console
                 res.status(200).json({ data: data, status: 200, message: `Export to CSV success!, \nTotal records: ${userList.length}`, filename: filename });
             }
