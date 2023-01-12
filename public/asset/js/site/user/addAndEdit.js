@@ -38,6 +38,8 @@ $(function () {
         selectDivision = $(selectDivisionIdStr);
         selectPosition = $(selectPositionIdStr);
 
+        getLoginUserId = parseInt(document.querySelector('#user-id')?.dataset?.userId); // get user id attribute in defaultHeader.ejs (data-user-id="")
+
         // validation utility variables
         isPassRetypeOptional = false;
 
@@ -52,7 +54,7 @@ $(function () {
                         selectDivision.append(`<option value="${div.id}" ${div.id === renderedUserDivision ? 'selected' : ''}>${div.name}</option>`);
                     });
                 });
-            // POS_ARR is in site/common.js
+            // POS_ARR is in site/constant.js
             POS_ARR.forEach((div) => {
                 // when server render ejs <select> tag will have data-user-position-id, set <option> selected if div.id equal to that id
                 selectPosition.append(`<option value="${div.id}" ${div.id === renderedUserPosition ? 'selected' : ''}>${div.name}</option>`);
@@ -101,7 +103,7 @@ $(function () {
         });
 
         const registerValidate = () => {
-            $.validator.addMethod('isValidPassword', function (value, element, params) {
+            $.validator.addMethod('isRegisterPassValid', function (value, element, params) {
                 return /^[a-z0-9]+$/.test(value);
             });
             formElement.validate({
@@ -134,7 +136,7 @@ $(function () {
                     },
                     "password": {
                         required: true,
-                        isValidPassword: true,
+                        // isValidPassword: true,
                         is1ByteChar: true,
                         minlength: 8,
                         maxlength: 20,
@@ -142,7 +144,7 @@ $(function () {
                     "retype": {
                         required: true,
                         equalTo: "#password",
-                        isValidPassword: true,
+                        // isValidPassword: true,
                         is1ByteChar: true,
                         minlength: 8,
                         maxlength: 20,
@@ -173,7 +175,7 @@ $(function () {
                         required: messages.ECL001('Password'),
                         minlength: messages.ECL023,
                         maxlength: messages.ECL023,
-                        isValidPassword: messages.ECL023,
+                        // isValidPassword: messages.ECL023,
                         is1ByteChar: messages.ECL004('Password'),
                     },
                     "retype": {
@@ -199,7 +201,7 @@ $(function () {
         };
 
         const updateValidate = () => {
-            $.validator.addMethod('isValidPassword', function (value, element, params) {
+            $.validator.addMethod('isUpdatePassValid', function (value, element, params) {
                 return this.optional(element) || /^[a-z0-9]+$/.test(value);
             });
             formElement.validate({
@@ -231,7 +233,7 @@ $(function () {
                         checkEmailMaxLength: true
                     },
                     "password": {
-                        isValidPassword: true,
+                        isUpdatePassValid: true,
                         is1ByteChar: true,
                         minlength: function () {
                             const curVal = $(passwordIdStr).val();
@@ -302,7 +304,7 @@ $(function () {
                     "password": {
                         minlength: messages.ECL023,
                         maxlength: messages.ECL023,
-                        isValidPassword: messages.ECL023,
+                        isUpdatePassValid: messages.ECL023,
                         is1ByteChar: messages.ECL004('Password'),
                     },
                     "retype": {
@@ -387,25 +389,31 @@ $(function () {
         });
 
         $(document).on('click', deleteIdStr, function (e) {
-            (async () => {
-                const userIdToDelete = formElement.find('#userIdToDeleteAndUpdate').data('userId'); // ex: data-user-id="287374"
-                const isConfirmed = await confirmModal(`このユーザーを削除しますか？`);
-                if (isConfirmed) {
-                    $.ajax({
-                        method: 'DELETE',
-                        // enctype: 'multipart/form-data',
-                        url: `/api/admin/users/${userIdToDelete}`,
-                        cache: false,
-                        success: function (res) {
-                            location.href = '/admin/users/list';
-                            openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.status, res.message, null, false);
-                        },
-                        error: function (res, stat, err) {
-                            openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.statusText, res.responseJSON.message, null, false);
-                        },
-                    });
-                }
-            })();
+            const userIdToDelete = formElement.find('#userIdToDeleteAndUpdate').data('userId'); // ex: data-user-id="287374"
+
+            // If delete login user then show error ECL086																
+            if (parseInt(userIdToDelete) === getLoginUserId) {
+                openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', null, messages.ECL086, null, false);
+            } else {
+                (async () => {
+                    const isConfirmed = await confirmModal(`このユーザーを削除しますか？`);
+                    if (isConfirmed) {
+                        $.ajax({
+                            method: 'DELETE',
+                            // enctype: 'multipart/form-data',
+                            url: `/api/admin/users/${userIdToDelete}`,
+                            cache: false,
+                            success: function (res) {
+                                location.href = '/admin/users/list';
+                                openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.status, res.message, null, false);
+                            },
+                            error: function (res, stat, err) {
+                                openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.statusText, res.responseJSON.message, null, false);
+                            },
+                        });
+                    }
+                })();
+            }
         });
 
         $(document).on('click', updateIdStr, function (e) {

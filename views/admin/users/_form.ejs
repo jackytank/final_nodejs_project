@@ -1,4 +1,8 @@
-<form id="addEditDeleteForm" class="" method="<%= formMethod %>" data-form-purpose="ejsout">
+<form id="addEditDeleteForm" class="" method="<%= formMethod %>" data-form-purpose="<%= formPurpose %>">
+	<% 
+		const isInputDisabled = [1,2,3].includes(loginUser.position_id) ? `disabled`:``
+		const {name, email, division_id, entered_date, position_id} = userData;
+	%>
 	<div class="row">
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
@@ -13,7 +17,7 @@
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label for="name" class="input-group-text w-50">User Name</label>
-				<input type="text" id="name" class="form-control" name="name" <%=userData.name?`value=${userData.name}` : ``%> <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
+				<input type="text" id="name" class="form-control" name="name" value="<%= name ?? '' %>" <%= isInputDisabled %> />
 			</div>
 		</div>
 	</div>
@@ -21,13 +25,13 @@
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="email">Email:</label>
-				<input type="text" id="email" class="form-control" name="email" <%=userData.email?`value=${userData.email}` : ``%> <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
+				<input type="text" id="email" class="form-control" name="email" value="<%= email ?? '' %>" <%= isInputDisabled %> />
 			</div>
 		</div>
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="selectDivision">Division: </label>
-				<select data-user-division-id="<%= userData.division_id %>" name="division_id" class="form-select" id="selectDivision" <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
+				<select data-user-division-id="<%= division_id %>" name="division_id" class="form-select" id="selectDivision" <%= isInputDisabled %>>
 					<!-- <option v-for="(item, index) in divisionsList" :key="index" :value="item.id">{{item.name}}</option> -->
 				</select>
 			</div>
@@ -37,14 +41,13 @@
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label for="entered_date" class="input-group-text w-50">Entered Date</label>
-				<input type="text" id="entered_date" class="form-control" name="entered_date" <%=userData.entered_date?`value=${userData.entered_date}` : ``%>
-					<%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %> />
+				<input type="text" id="entered_date" class="form-control" name="entered_date" value="<%= entered_date ?? '' %>" <%= isInputDisabled %> />
 			</div>
 		</div>
 		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
 			<div class="input-group">
 				<label class="input-group-text w-50" for="selectPosition">Position: </label>
-				<select data-user-position-id="<%= userData.position_id %>" name="position_id" class="form-select" id="selectPosition" <%= [1,2,3].includes(loginUser.position_id) ? `disabled`:`` %>>
+				<select data-user-position-id="<%= position_id %>" name="position_id" class="form-select" id="selectPosition" <%= isInputDisabled %>>
 					<!-- <option v-for="(item, index) in posList" :key="index" :value="item.id">{{item.name}}</option> -->
 				</select>
 			</div>
@@ -69,13 +72,29 @@
 
 	<% if (typeof formPurpose !== 'undefined') { %>
 
-	<% if (formPurpose === 'addUser') { %>
+	<% if (formPurpose === 'addUser' && loginUser.position_id === 0) { %>
 	<button type="button" class="btn btn-outline-success me-2 mb-4" id="registerBtn">Register</button>
 	<% } %>
 
+	<!-- Trường hợp user.position_id của login user là 0 và chuyển đến màn hình trước từ nút "Add New" thì không hiển thị -->
 	<% if (formPurpose === 'editUser') { %>
-	<button type="button" class="btn btn-outline-primary me-2 mb-4" id="updateBtn">Update</button>
-	<button type="button" class="btn btn-outline-danger me-2 mb-4" id="deleteBtn">Delete</button>
+		<% 
+			let isUpdateAppear = false;
+			let isDeleteAppear = false;
+			if([0].includes(loginUser.position_id)){
+				isUpdateAppear = true;
+				isDeleteAppear = true;
+			} else if([1,2,3].includes(loginUser.position_id)){
+				isUpdateAppear = true;
+				isDeleteAppear = true;
+			}
+		%>
+		<% if (isUpdateAppear) { %>
+			<button type="button" class="btn btn-outline-primary me-2 mb-4" id="updateBtn">Update</button>
+		<% } %>
+		<% if (isDeleteAppear) { %>
+			<button type="button" class="btn btn-outline-danger me-2 mb-4" id="deleteBtn">Delete</button>
+		<% } %>
 	<% } %>
 
 	<% } %>

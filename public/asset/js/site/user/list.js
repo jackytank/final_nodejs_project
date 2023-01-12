@@ -129,12 +129,20 @@ $(function () {
                     render: function (data, type, row, meta) {
                         // const isEditDisabled = getUserRole === 1 ? (Number(getUserId) === data.id ? false : true) : false;
                         // const isDelDisabled = getUserRole === 1 ? true : false;
-                        const userId = data['ID'];
-                        const isLoginUserGeDi = getUserPosition === 0 ? true : false;
+                        const dataUserId = data['ID'];
+                        let isLink = false;
+                        if ([1, 2, 3].includes(getUserPosition)) {
+                            if (parseInt(dataUserId) === getUserId) {
+                                isLink = true;
+                            }
+                        }
+                        if ([0].includes(getUserPosition)) {
+                            isLink = true;
+                        }
                         const escapedName = escapeHtml(data['User Name']);
-                        const link = `<a href="/admin/users/edit/${userId}">${escapedName}</a>`;
+                        const link = `<a href="/admin/users/edit/${dataUserId}">${escapedName}</a>`;
                         const label = `<label>${escapedName}</label>`;
-                        return `${isLoginUserGeDi ? link : label}`;
+                        return `${isLink ? link : label}`;
                     },
                 },
                 {

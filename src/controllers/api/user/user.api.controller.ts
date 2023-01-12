@@ -45,7 +45,7 @@ class UserApiController {
     async search(req: Request, res: Response) {
         try {
             // save req.query to session for export csv based on search query
-            const { name, enteredDateFrom, enteredDateTo, draw } = req.query;
+            const { draw } = req.query;
             req.session.searchQuery = req.query;
             let result: CustomDataTableResult = { draw: 0, data: [], recordsFiltered: 0, recordsTotal: 0 };
             if (parseInt(draw as string) !== 1) {
@@ -94,18 +94,26 @@ class UserApiController {
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
-        const { name, username, password, email, role } = req.body;
-        const id = req.params.id;
+        const { id } = req.params;
+        const { name, entered_date, email, position_id, division_id } = req.body;
+        let { password } = req.body;
+        password = password === '' ? undefined : password;
         const user: User = Object.assign(new User(), {
-            id,
-            name,
-            username,
-            password,
-            email,
-            role,
+            id, name, entered_date, password, email, position_id, division_id
         });
-        const result = await this.userService.updateData(user, null, queryRunner, { checkUniqueMail: true, });
-        return res.status(result.status as number).json(result);
+        try {
+            const result = await this.userService.updateData(user, null, queryRunner, { checkUniqueMail: true, });
+            if (result.status !== 200) {
+                return res.status(result.status as number).json({ status: result.status, message: result.message ?? messages.ECL093 });
+            }
+            await queryRunner.commitTransaction();
+            return res.status(200).json({ status: 200, message: result.message ?? messages.ECL096 });
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            return res.status(500).json({ status: 500, message: messages.ECL093 });
+        } finally {
+            await queryRunner.release();
+        }
     }
     async remove(req: Request, res: Response) {
         const id = parseInt(req.params.id);
@@ -252,10 +260,10 @@ class UserApiController {
     async exportCsv(req: Request, res: Response) {
         const { start, end } = bench();
         const query = req.session.searchQuery;
-        if (!query?.name && !query?.enteredDateFrom && !query?.enteredDateTo) {
+        if (!query || query?.draw === '1') {
             return res.status(400).json({ message: messages.ECL097, status: 400 });
         }
-        const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(query, false); // set false to turn off offset,limit search criteria
+        const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(query as Record<string, unknown>, false); // set false to turn off offset,limit search criteria
         const userList: CustomUserData[] = await builder.getRawMany();
         // if list is empty then return 404
         // userList = [];
