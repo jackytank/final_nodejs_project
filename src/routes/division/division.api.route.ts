@@ -5,5 +5,6 @@ const divisionApiRouter = express.Router();
 
 // base path: /api/admin/divisions/
 divisionApiRouter.get('/', divisionApiController.getAll);
+divisionApiRouter.get('/search', divisionApiController.search)
 
 export default divisionApiRouter;

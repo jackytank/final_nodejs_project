@@ -15,6 +15,7 @@ class DivisionController {
     async listPage(req: Request, res: Response) {
         const flashMessage = req.flash('message')[0];
         res.render('admin/divisions/list', {
+            screenName: 'Division List',
             activeTab: 'listDivisionTab',
             queryBack: {},
             message: flashMessage,
