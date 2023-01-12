@@ -26,6 +26,7 @@ class AdminUserController {
         const flashMessage = req.flash('message')[0];
         const dataBack = req.flash('dataBack')[0];
         res.render('admin/users/add', {
+            screenName: 'Register User',
             activeTab: 'addUserTab',
             dataBack: dataBack ?? {},
             message: flashMessage
@@ -42,7 +43,7 @@ class AdminUserController {
             name, username, password, email, role
         });
         try {
-            const result: CustomEntityApiResult<User> = await this.userService.insertData(user, null, queryRunner, { wantValidate: true, isPasswordHash: true });
+            const result: CustomEntityApiResult<User> = await this.userService.insertData(user, null, queryRunner, { checkUniqueMail: true, isPasswordHash: true });
             if (result.status === 400 || result.status === 500) {
                 await queryRunner.rollbackTransaction();
                 req.flash('message', result.message ?? 'Error when create user!');
@@ -68,6 +69,7 @@ class AdminUserController {
         if (result.status === 200) {
             const flashMessage = req.flash('message')[0];
             res.render('admin/users/edit', {
+                screenName: 'Edit User',
                 activeTab: 'listUserTab',
                 dataBack: {},
                 message: flashMessage,
@@ -93,7 +95,7 @@ class AdminUserController {
             }
         }
         try {
-            const result: CustomEntityApiResult<User> = await this.userService.updateData(user, null, queryRunner, { wantValidate: true });
+            const result: CustomEntityApiResult<User> = await this.userService.updateData(user, null, queryRunner, { checkUniqueMail: true });
             if (result.status === 404) {
                 req.flash('message', result.message ?? `Can't find user!`);
                 res.redirect('/admin/users/list');
@@ -113,6 +115,7 @@ class AdminUserController {
     async listPage(req: Request, res: Response) {
         const flashMessage = req.flash('message')[0];
         res.render('admin/users/list', {
+            screenName: 'User List',
             activeTab: 'listUserTab',
             queryBack: {},
             dayjs: dayjs,

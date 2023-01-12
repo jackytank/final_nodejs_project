@@ -93,7 +93,7 @@ export const defaultAllow = (options: { resAsApi: boolean; }) => {
  * @deprecated
  */
 export const allowParams = (options: { resAsApi: boolean; }) => {
-    return allow({ posArr: [POS_NUM.GR_LE, POS_NUM.LE], resAsApi: options.resAsApi, permitIf: { userSessionPropEqualPropFrom: { params: { whichProp: 'id' } } } });
+    return allow({ posArr: [POS_NUM.GE_DI], resAsApi: options.resAsApi, permitIf: { userSessionPropEqualPropFrom: { params: { whichProp: 'id' } } } });
 };
 /**
  * @deprecated

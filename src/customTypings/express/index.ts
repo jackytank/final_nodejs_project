@@ -42,7 +42,7 @@ declare global {
 export type CustomEntityApiResult<Entity> = {
     message?: string | null;
     messages?: string[] | null;
-    data?: Entity | Entity[] | null;
+    data?: Entity | Entity[] | unknown | null;
     status?: number;
     count?: number;
 };
@@ -61,6 +61,11 @@ export type CustomDataTableResult = {
 export interface CustomUserData {
     "ID": string | number;
     "User Name": string;
+    "Position": string | number,
+    "Created Date": string | Date,
+    "Entered Date": string | Date,
+    "Deleted Date": string | Date,
+    "Updated Date": string | Date,
     "id": string;
     "email": string;
     "name": string;

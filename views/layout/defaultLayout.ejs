@@ -2,64 +2,70 @@
 <html lang="en">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : '' %></title>
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title><%= typeof pageTitle !== 'undefined' ? pageTitle : '' %></title>
+	<!-- Tell the browser to be responsive to screen width -->
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
-    <!-- <link rel="stylesheet" type="text/css" href="/asset/css/bootstrap/bootstrap.min.css"> -->
-    <link rel="stylesheet" type="text/css" href="/asset/css/bootstrap5.3/bootstrap.min.css">
-    <!-- <link rel="stylesheet" type="text/css" href="/asset/css/mdb/mdb.min.css"> -->
-    <link rel="stylesheet" type="text/css" href="/asset/css/datatable/jquery.dataTables.min.css">
-    <!-- <link rel="stylesheet" type="text/css" href="/asset/css/bootstrap/dataTables.bootstrap4.css"> -->
-    <!-- <link rel="stylesheet" type="text/css" href="/asset/css/bootstrap/responsive.bootstrap4.css">
+	<!-- <link rel="stylesheet" type="text/css" href="/asset/css/bootstrap/bootstrap.min.css"> -->
+	<link rel="stylesheet" type="text/css" href="/asset/css/bootstrap5.3/bootstrap.min.css">
+	<!-- <link rel="stylesheet" type="text/css" href="/asset/css/mdb/mdb.min.css"> -->
+	<link rel="stylesheet" type="text/css" href="/asset/css/datatable/jquery.dataTables.min.css">
+	<!-- <link rel="stylesheet" type="text/css" href="/asset/css/bootstrap/dataTables.bootstrap4.css"> -->
+	<!-- <link rel="stylesheet" type="text/css" href="/asset/css/bootstrap/responsive.bootstrap4.css">
         <link rel="stylesheet" type="text/css" href="/asset/css/datepicker/bootstrap-datepicker.css">
         <link rel="stylesheet" type="text/css" href="/asset/css/datepicker/bootstrap-datetimepicker.min.css"> -->
-    <link rel="stylesheet" type="text/css" href="/asset/css/custom/style.css">
-    <link rel="stylesheet" href="/asset/font/pe-icon-7-stroke/css/pe-icon-7-stroke.css">
-    <link rel="stylesheet" href="/asset/font/pe-icon-7-stroke/css/helper.css">
+	<link rel="stylesheet" type="text/css" href="/asset/css/custom/style.css">
+	<link rel="stylesheet" href="/asset/font/pe-icon-7-stroke/css/pe-icon-7-stroke.css">
+	<link rel="stylesheet" href="/asset/font/pe-icon-7-stroke/css/helper.css">
 
-    <!-- <link rel="stylesheet" href="/asset/css/font-awesome/css/font-awesome.min.css"> -->
-    <!-- <link rel="stylesheet" type="text/css" href="/asset/css/font-awesome/css/all.css"> -->
-    <link rel="stylesheet" href="/asset/css/fontawesome-f/css/all.min.css">
-    <!-- <link rel="stylesheet" href="/asset/css/font-awesome/css/fontawesome.min.css">
+	<!-- <link rel="stylesheet" href="/asset/css/font-awesome/css/font-awesome.min.css"> -->
+	<!-- <link rel="stylesheet" type="text/css" href="/asset/css/font-awesome/css/all.css"> -->
+	<link rel="stylesheet" href="/asset/css/fontawesome-f/css/all.min.css">
+	<!-- <link rel="stylesheet" href="/asset/css/font-awesome/css/fontawesome.min.css">
     <link rel="stylesheet" href="/asset/css/font-awesome/css/solid.min.css">
     <link rel="stylesheet" href="/asset/css/font-awesome/css/brands.min.css"> -->
 
-    <!-- jQuery 3 -->
-    <script type="text/javascript" src="/asset/js/lib/jquery-3.4.1.min.js"></script>
+	<!-- jQuery 3 -->
+	<script type="text/javascript" src="/asset/js/lib/jquery-3.4.1.min.js"></script>
 </head>
 
 <body>
-    <%- include('./defaultHeader') %>
-    <% if(typeof activeTab !== 'undefined'){ %>
-    <%- include('./defaultLeftMenu', {activeTab:activeTab}) %>
-    <% } else {%>
-    <%- include('./defaultLeftMenu') %>
-    <% } %>
+	<% if (typeof screenName !== 'undefined') { %>
+	<%- include('./defaultHeader', {screenName: screenName}) %>
+	<% } else{%>
+	<%- include('./defaultHeader') %>
+	<% } %>
 
-    <main class="mb-4">
-        <!-- view will be injected here -->
-        <%- body %>
-    </main>
+	<% if(typeof activeTab !== 'undefined'){ %>
+	<%- include('./defaultLeftMenu', {activeTab:activeTab}) %>
+	<% } else {%>
+	<%- include('./defaultLeftMenu') %>
+	<% } %>
 
-    <%- include('./defaultScripts') %>
+	<main class="mb-4">
+		<!-- view will be injected here -->
+		<%- body %>
+	</main>
 
-    <!-- show message if exist -->
-    <% if(typeof message !== 'undefined') {%>
-    <!-- modal id: #errorModal -->
-    <%- include('../common/modal/errorModal', {message:message??''}) %>
-    <script>
-        const errorModal = document.querySelector('#errorModal');
-        const modal = new mdb.Modal(errorModal);
-        modal.show()
-    </script>
-    <% } else{%>
-        <%- include('../common/modal/errorModal') %>
-    <% } %> 
-    <!-- custom script will be injected here from html view file by express-ejs-layout -->
-    <%- script %>
+	<%- include('./defaultScripts') %>
+
+	<!-- show message if exist -->
+	<% if(typeof message !== 'undefined') {%>
+	<!-- modal id: #errorModal -->
+	<%- include('../common/modal/errorModal', {message:message??''}) %>
+	<script>
+const errorModal = document.querySelector('#errorModal');
+const modal = new bootstrap.Modal(errorModal, {});
+modal.show()
+	</script>
+	<% } else{%>
+	<%- include('../common/modal/errorModal') %>
+	<% } %>
+	<%- include('../common/modal/confirmModal') %>
+	<!-- custom script will be injected here from html view file by express-ejs-layout -->
+	<%- script %>
 
 </body>
 

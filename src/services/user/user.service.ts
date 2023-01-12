@@ -9,6 +9,8 @@ import { CustomEntityApiResult, CustomDataTableResult, CustomValidateResult, Cus
 import { Division } from '../../entities/division.entity';
 import { isValidDate, setAllNull } from '../../utils/common';
 import { AppDataSource } from '../../DataSource';
+import { messages } from '../../constants';
+import dayjs from 'dayjs';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class UserService {
@@ -132,15 +134,14 @@ export class UserService {
     }
     async getOneData(id: number): Promise<CustomEntityApiResult<User>> {
         try {
-            const findUser: User | null = await this.userRepo.findOne({
-                where: { id: id },
-            });
+            const findUser: User | null = await this.userRepo.findOne({ where: { id: id }, });
             if (!findUser) {
                 return { message: `User ID ${id} Not Found!`, status: 404 };
             }
+            const formattedDateUser = { ...findUser, "entered_date": dayjs(findUser.entered_date).format('YYYY/MM/DD') };
             return {
                 message: `Found user with id ${id}`,
-                data: findUser,
+                data: formattedDateUser,
                 status: 200,
             };
         } catch (error) {
@@ -168,6 +169,7 @@ export class UserService {
                 } else {
                     b.orWhere('user.email = :email', { email: `${user.email}` });
                 }
+                findUsers = await b.getMany();
             } else {
                 if (user.id) {
                     findUsers = dbData.filter(data => data.email === user.email && data.id !== user.id);
@@ -177,7 +179,7 @@ export class UserService {
             }
             if (findUsers.length > 0) {
                 result = Object.assign({}, {
-                    message: 'Email is already exist!',
+                    message: messages.ECL019,
                     isValid: false,
                     datas: findUsers,
                 },);
@@ -185,7 +187,6 @@ export class UserService {
             }
         }
         return {
-            message: 'Email is unique!',
             isValid: true,
             datas: findUsers,
         };
@@ -198,14 +199,15 @@ export class UserService {
      * @param options if wantValidate is true then it will check username and email unique
      * @returns return CustomApiResult<User> with message, data, and status
      */
-    async insertData(user: User, dbData: User[] | null, queryRunner: QueryRunner, options: { wantValidate?: boolean; isPasswordHash?: boolean; },): Promise<CustomEntityApiResult<User>> {
-        if (options.wantValidate) {
+    async insertData(user: User, dbData: User[] | null, queryRunner: QueryRunner, options: { checkUniqueMail?: boolean; isPasswordHash?: boolean; },): Promise<CustomEntityApiResult<User>> {
+        if (options.checkUniqueMail) {
             const validateUser = await this.checkEmailUnique(user, dbData);
             if (!validateUser.isValid) {
                 return { message: validateUser.message, status: 400 };
             }
         }
         user.created_date = new Date();
+        user.updated_date = new Date();
         // hash pass if isPasswordHash is true, incase of insert data from csv file (already had pass)
         if (options.isPasswordHash) {
             const hashed = await hashPassword(user.password);
@@ -223,12 +225,12 @@ export class UserService {
             }
             // const newUser: User | null = await queryRunner.manager.findOneBy(User, { id: insertRes.identifiers[0].id });
             return {
-                message: 'User created successfully!',
+                message: messages.ECL096,
                 data: insertedUser as User,
                 status: 200,
             };
         } catch (error) {
-            return { message: 'Error when inserting user!', status: 500 };
+            return { message: messages.ECL093, status: 500 };
         }
     }
     /**
@@ -239,9 +241,9 @@ export class UserService {
      * @param options if wantValidate is true then it will check username and email unique, if user id is provided then it will not check username and email unique
      * @returns return CustomApiResult<User> with message, data, and status
      */
-    async updateData(user: User, dbData: User[] | null, queryRunner: QueryRunner, options: { wantValidate?: boolean; }): Promise<CustomEntityApiResult<User>> {
+    async updateData(user: User, dbData: User[] | null, queryRunner: QueryRunner, options: { checkUniqueMail?: boolean; }): Promise<CustomEntityApiResult<User>> {
         let validateUser = null;
-        if (options.wantValidate) {
+        if (options.checkUniqueMail) {
             validateUser = await this.checkEmailUnique(user, dbData);
             if (!validateUser.isValid) {
                 const arr: number[] | undefined = validateUser.datas?.map(u => u.id);
@@ -274,12 +276,12 @@ export class UserService {
                 dbData.push(updatedUser as User);
             }
             return {
-                message: `Update user successfully!`,
+                message: messages.ECL096,
                 data: updatedUser as User,
                 status: 200,
             };
         } catch (error) {
-            return { message: `Error when updating user!`, status: 500 };
+            return { message: messages.ECL093, status: 500 };
         }
     }
     /**
@@ -294,9 +296,9 @@ export class UserService {
                 return { message: `User ID ${id} Not Found`, status: 404 };
             }
             await this.userRepo.remove(userToRemove);
-            return { message: `User removed successfully`, status: 200 };
+            return { message: messages.ECL096, status: 200 };
         } catch (error) {
-            return { message: `Error when removing user`, status: 500 };
+            return { message: messages.ECL093, status: 500 };
         }
     }
     /**

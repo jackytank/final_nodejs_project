@@ -1,5 +1,5 @@
 <!-- Header -->
-<header>
+<header class="mb-4">
 	<nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
 		<!-- Container wrapper -->
 		<div class="container-fluid">
@@ -11,23 +11,29 @@
 			<!-- Brand -->
 			<a class="navbar-brand" href="/">
 				<img src="/asset/images/bris.png" height="35" alt="" loading="lazy" />
-				<small>Briswell VN</small>
+				Briswell VN
 			</a>
+
+			<span class="ms-auto d-sm-none d-none d-md-block d-lg-block fw-bold">
+				<% if (typeof screenName !== 'undefined') { %>
+				<%= screenName %>
+				<% } %>
+			</span>
 			<!-- Right links -->
-			<ul class="navbar-nav ms-auto d-flex flex-row">
+			<ul class="navbar-nav ms-auto d-flex">
 				<!-- Avatar -->
 				<% if(loginUser.name){ %>
 				<a class="nav-link d-flex align-items-center" href="#">
 					<label><%= loginUser.name %></label>
 					<div class="vr mx-2"></div>
-					<span id="user-position" data-user-position="<%= loginUser.position_id %>"></span>
+					<span id="user-position" data-user-position="<%= loginUser.position_id %>">
+					</span>
 					<span id="user-id" data-user-id="<%= loginUser.id %>"></span>
 				</a>
 				<a class="nav-link d-flex align-items-center" href="/logout?redirect=<%= logoutRedirect %> ">Logout</a>
 				<% } else {%>
 				<a class="nav-link d-flex align-items-center" href="/login" id="loginLink">Login</a>
 				<% } %>
-
 			</ul>
 		</div>
 		<!-- Container wrapper -->

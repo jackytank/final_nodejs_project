@@ -48,20 +48,30 @@ export const messages = {
     ECL056: 'No data in session.',
     ECL057: 'Failed to register data.',
     ECL001: (field: string) => {
-        return `${field.toUpperCase()}は必須項目です。`;
+        return `${field}は必須項目です。`;
     },
     ECL002: (field: string, maxChar: number, curChar: number) => {
         // Enter ${field} with less than "${maxChar}" characters. (currently ${curChar} characters)
         return `${field}は「${maxChar}」文字以下で入力してください。（現在${curChar}文字）																																`;
     },
-    ECL017: '入力した情報のいずれかの情報が間違っています。<br>確認してから再度試してください。', // for login failed
-    ECL019: (field: string, minChar: number, curChar: number) => {
-        // Your email address is already registered.
-        return 'すでにメールアドレスは登録されています。';
+    ECL004: (field: string) => {
+        return `${field}は半角英数で入力してください。`;
     },
+    ECL005: 'メールアドレスを正しく入力してください。',
+    ECL008: (field: string) => {
+        return `${field}は日付を正しく入力してください。`;
+    },
+    ECL017: '入力した情報のいずれかの情報が間違っています。<br>確認してから再度試してください。', // for login failed
+    ECL019: 'すでにメールアドレスは登録されています。',
+    ECL023: 'パスワードは半角英数字記号で8～20文字で入力してください。',
+    ECL030: '確認用のパスワードが間違っています。',
     ECL069: (field: string) => {
-        return `入力値が正しくありません。${field.toUpperCase()}FROMより${field.toUpperCase()}TOが大きくなるよう入力してください。`;
-    }
+        return `入力値が正しくありません。${field}Fromより${field}Toが大きくなるよう入力してください。`;
+    },
+    ECL086: 'すでに証明書番号は登録されています。',
+    ECL093: '登録・更新・削除処理に失敗しました。',
+    ECL096: '登録・更新・削除処理に成功しました。',
+    ECL097: 'CSV出力に失敗しました。'
 };
 
 // tri - my own custom constants - START

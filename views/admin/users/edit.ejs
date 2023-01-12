@@ -1,18 +1,8 @@
 <div class="container pt-4">
-	<section class="mb-4">
-		<div class="card">
-			<div class="card-header py-3">
-				<h5 class="mb-0 text-center"><strong>EDIT USER</strong></h5>
-			</div>
-		</div>
-	</section>
-
 	<div class="container">
 		<%- include('./_form.ejs', {
-            formId: 'userForm',
             formMethod: 'POST',
             formPurpose: 'editUser',
-            submitBtnId: 'submitBtn',
             userData: user
         }) %>
 	</div>
@@ -21,4 +11,4 @@
 <script src="/asset/js/site/user/addAndEdit.js"></script>
 
 <%- contentFor('pageTitle') %>
-Edit
+UserAddEditDelete
