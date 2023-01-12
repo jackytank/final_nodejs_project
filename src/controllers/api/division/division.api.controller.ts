@@ -10,7 +10,10 @@ class DivisionApiController {
     }
 
     async getAll(req: Request, res: Response) {
-        const data = await this.disRepo.createQueryBuilder('d').where('d.deleted_date IS NULL').getMany();
+        const data = await this.disRepo.createQueryBuilder('d')
+            .where('d.deleted_date IS NULL')
+            .orderBy('d.name', 'ASC')
+            .getMany();
         return res.status(200).json({ data: data });
     }
 }

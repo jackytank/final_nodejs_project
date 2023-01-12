@@ -4,6 +4,7 @@ import { blackListWords, errMsg, messages } from '../../../constants';
 import { PosEnum } from '../../../entities/user.entity';
 import DOMPurify from 'isomorphic-dompurify';
 import eastasianwidth from '../../../utils/eastasianwidth';
+import _ from 'lodash';
 
 /**
  * 
@@ -14,9 +15,9 @@ export const userExpressValidationRule = (options: { hasRetype: boolean; hasPass
     // task validation: https://redmine.bridevelopment.com/issues/106778
     const ruleArr = [
         body('name')
-            .customSanitizer((value) => {
-                return DOMPurify.sanitize(value);
-            })
+            // .customSanitizer((value) => {
+            //     return DOMPurify.sanitize(value);
+            // })
             .not()
             .isEmpty().withMessage(messages.ECL001('User Name'))
             .bail()
@@ -36,9 +37,9 @@ export const userExpressValidationRule = (options: { hasRetype: boolean; hasPass
             })
             .trim(),
         body('email')
-            .customSanitizer((value) => {
-                return DOMPurify.sanitize(value);
-            })
+            // .customSanitizer((value) => {
+            //     return DOMPurify.sanitize(value);
+            // })
             .not()
             .isEmpty().withMessage(messages.ECL001('Email'))
             .bail()
@@ -58,7 +59,7 @@ export const userExpressValidationRule = (options: { hasRetype: boolean; hasPass
             })
             .bail()
             .isEmail().withMessage(messages.ECL005)
-            .normalizeEmail() // Ex: @gMaiL.CoM -> @gmail.com, lowercase domain part because it case-insensitive
+            // .normalizeEmail() // Ex: @gMaiL.CoM -> @gmail.com, lowercase domain part because it case-insensitive
             .trim(),
         body('position_id')
             .customSanitizer((value) => {

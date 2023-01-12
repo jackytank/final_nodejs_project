@@ -165,16 +165,17 @@ export class UserService {
         if (user.email) {
             if (!dbData) {
                 if (user.id) {
-                    b.orWhere('user.email = :email AND user.id <> :id', { email: `${user.email}`, id: user.id });
+                    b.andWhere('user.email = :email AND user.id <> :id', { email: `${user.email}`, id: user.id });
                 } else {
-                    b.orWhere('user.email = :email', { email: `${user.email}` });
+                    b.andWhere('user.email = :email', { email: `${user.email}` });
                 }
+                b.andWhere('user.deleted_date IS NULL');
                 findUsers = await b.getMany();
             } else {
                 if (user.id) {
-                    findUsers = dbData.filter(data => data.email === user.email && data.id !== user.id);
+                    findUsers = dbData.filter(data => data.email === user.email && data.id !== user.id && data.deleted_date !== null);
                 } else {
-                    findUsers = dbData.filter(data => data.email === user.email);
+                    findUsers = dbData.filter(data => data.email === user.email && data.deleted_date !== null);
                 }
             }
             if (findUsers.length > 0) {
@@ -253,7 +254,7 @@ export class UserService {
             }
         }
         user.updated_date = new Date();
-        if (!_.isNil(user.password)) {
+        if (!_.isNil(user.password) && !_.isEmpty(user.password)) {
             const hashed = await hashPassword(user.password);
             user.password = hashed;
         }
@@ -266,7 +267,6 @@ export class UserService {
         }
         try {
             let updatedUser: User | UpdateResult;
-            // encode special character to prevent html injection
             if (dbData) {
                 updatedUser = await queryRunner.manager.save(User, user);
             } else {

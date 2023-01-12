@@ -38,42 +38,46 @@ function allow(options: {
                 whichProp: string;
             };
         };
-    };
+    },
+    redirUrl?: string;
 }) {
     return (req: Request, res: Response, next: NextFunction) => {
-        const userPos = req.session.user?.position_id;
+        const userPos = req.session.user?.position_id ?? req.user.id;
         if (options.permitIf && options.permitIf.userSessionPropEqualPropFrom) {
             if (Object.keys(req.params).length !== 0 && options.permitIf.userSessionPropEqualPropFrom.params) {
                 const { whichProp } = options.permitIf.userSessionPropEqualPropFrom.params;
-                const userSession = req.session.user === undefined ? req.user : req.session.user;
+                const userSession = req.session.user ?? req.user;
                 const prop = userSession?.[whichProp as keyof typeof userSession];
                 if (req.params[whichProp].trim() === (typeof prop === 'string' ? prop === 'string' : prop?.toString())) {
-                    next();
+                    return next();
                 }
             }
             if (Object.keys(req.body).length !== 0 && options.permitIf.userSessionPropEqualPropFrom.body) {
                 const { whichProp } = options.permitIf.userSessionPropEqualPropFrom.body;
-                const userSession = req.session.user === undefined ? req.user : req.session.user;
+                const userSession = req.session.user ?? req.user;
                 const prop = userSession?.[whichProp as keyof typeof userSession];
                 if (req.body[whichProp].trim() === (typeof prop === 'string' ? prop : prop?.toString())) {
-                    next();
+                    return next();
                 }
             }
         }
         if (userPos != null && options.posArr.includes(userPos)) {
-            next();
+            return next();
         } else {
             logger.logWarning(req, messages.FORBIDDEN);
             if (options.resAsApi === true) {
-                res.status(403).json({ status: 403, message: 'Forbidden' });
-                return;
+                return res.status(403).json({ status: 403, message: 'Forbidden' });
+
             }
-            if (options.resAsApi === false || options.resAsApi === undefined || options.resAsApi === null) {
-                res.render('errors/index', {
-                    title: titleMessageError.FORBIDDEN,
-                    content: messages.FORBIDDEN,
-                });
-                return;
+            if (options.resAsApi === false || options.resAsApi == null) {
+                if (options.redirUrl) {
+                    return res.redirect(options.redirUrl);
+                } else {
+                    return res.render('errors/index', {
+                        title: titleMessageError.FORBIDDEN,
+                        content: messages.FORBIDDEN,
+                    });
+                }
             }
         }
     };
@@ -81,6 +85,10 @@ function allow(options: {
 
 export const allowOnlyGeDi = (options: { resAsApi: boolean; }) => {
     return allow({ posArr: [POS_NUM.GE_DI], resAsApi: options.resAsApi });
+};
+
+export const allowGeDiExceptParams = (options: { resAsApi: boolean, redirUrl?: string; }) => {
+    return allow({ posArr: [POS_NUM.GE_DI], resAsApi: options.resAsApi, permitIf: { userSessionPropEqualPropFrom: { params: { whichProp: 'id' } } }, redirUrl: options.redirUrl });
 };
 /**
  * @deprecated

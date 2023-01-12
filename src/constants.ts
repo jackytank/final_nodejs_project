@@ -77,31 +77,31 @@ export const messages = {
 // tri - my own custom constants - START
 export const errMsg = {
     ERR001: (field: string) => {
-        return `${field.toUpperCase()} is required!`;
+        return `${field} is required!`;
     },
     ERR002: (field: string, minLength: number, maxLength: number) => {
-        return `${field.toUpperCase()} should be more than ${minLength}, less than equal to ${maxLength} characters`;
+        return `${field} should be more than ${minLength}, less than equal to ${maxLength} characters`;
     },
     ERR003: (email: string) => {
-        return `${email.toUpperCase()} is invalid!`;
+        return `${email} is invalid!`;
     },
     ERR004: (field1: string, field2: string) => {
-        return `${field1.toUpperCase()} must match ${field2}`;
+        return `${field1} must match ${field2}`;
     },
     ERR005: (field: string, min: number) => {
-        return `${field.toUpperCase()} should be bigger than ${min} characters`;
+        return `${field} should be bigger than ${min} characters`;
     },
     ERR006: (field: string, max: number) => {
-        return `${field.toUpperCase()} should be less than equal to ${max} characters`;
+        return `${field} should be less than equal to ${max} characters`;
     },
     ERR007: (field: string, type: string) => {
-        return `${field.toUpperCase()} is not of type ${type.toLowerCase()}`;
+        return `${field} is not of type ${type.toLowerCase()}`;
     },
     ERR008: (field: string) => {
-        return `${field.toUpperCase()} is contains blacklisted words`;
+        return `${field} is contains blacklisted words`;
     },
     ERR009: (field: string, minLength: number) => {
-        return `${field.toUpperCase()} should be more than ${minLength} characters`;
+        return `${field} should be more than ${minLength} characters`;
     }
 };
 
@@ -153,4 +153,5 @@ export const blackListWords = [
     'link',
     'listing',
 ]
+
 // tri - my own custom constants - END
