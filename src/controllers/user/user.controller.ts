@@ -26,6 +26,7 @@ class AdminUserController {
         const flashMessage = req.flash('message')[0];
         const dataBack = req.flash('dataBack')[0];
         res.render('admin/users/add', {
+            screenName: 'Register User',
             activeTab: 'addUserTab',
             dataBack: dataBack ?? {},
             message: flashMessage
@@ -68,6 +69,7 @@ class AdminUserController {
         if (result.status === 200) {
             const flashMessage = req.flash('message')[0];
             res.render('admin/users/edit', {
+                screenName: 'Edit User',
                 activeTab: 'listUserTab',
                 dataBack: {},
                 message: flashMessage,
@@ -113,6 +115,7 @@ class AdminUserController {
     async listPage(req: Request, res: Response) {
         const flashMessage = req.flash('message')[0];
         res.render('admin/users/list', {
+            screenName: 'User List',
             activeTab: 'listUserTab',
             queryBack: {},
             dayjs: dayjs,

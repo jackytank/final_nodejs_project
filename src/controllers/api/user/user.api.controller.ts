@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { UserService } from '../../../services/user/user.service';
 import { CustomEntityApiResult, CustomValidateResult, } from '../../../customTypings/express';
 import { User } from '../../../entities/user.entity';
-import { bench, getRandomPassword, isHasDup, isValidDate } from '../../../utils/common';
+import { bench, getRandomPassword, isAllElementDup, isHasDup, isValidDate } from '../../../utils/common';
 import { UserModel } from '../../../models/user.model';
 import { AppDataSource } from '../../../DataSource';
 import { _1MB } from '../../../constants';
@@ -50,7 +50,7 @@ class UserApiController {
             let result: CustomDataTableResult = { draw: 0, data: [], recordsFiltered: 0, recordsTotal: 0 };
             if (parseInt(draw as string) !== 1) {
                 result = await this.userService.searchData({ ...req.query, name: validator.escape(req.query.name as string) });
-                if (isHasDup(result.data)) {
+                if (isAllElementDup(result.data)) {
                     result.data = _.orderBy(result.data.map((user: CustomUserData) => {
                         return { ...user, "ID": parseInt(user['ID'] as string) };
                     }), ['ID'], ['asc']);

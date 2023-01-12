@@ -192,5 +192,10 @@ export const isHasDup = (a: unknown[]) => {
     return new Set(a.map((item: CustomUserData) => item['User Name'])).size !== a.length;
 };
 
+export const isAllElementDup = (a: unknown[]) => {
+    const setA = new Set(a.map((item: CustomUserData) => item['User Name']));
+    return setA.size === 1;
+};
+
 
 // tri - my own custom functions - END
