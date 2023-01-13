@@ -58,6 +58,11 @@ class UserApiController {
                     // result.data = _.orderBy(result.data.map((user: CustomUserData) => {
                     //     return { ...user, "ID": parseInt(user['ID'] as string) };
                     // }), ['ID'], ['asc']);
+                    // (result.data as CustomUserData[]).forEach((u) => {
+                    //     console.log(u['ID'], u['Entered Date'], u['Created Date']);
+                    //     // console.log(u['Created Date']);
+                    //     // console.log(u['Updated Date']);
+                    // });
                 }
                 return res.status(200).json(result);
             }
@@ -299,19 +304,19 @@ class UserApiController {
             userList.map((user: CustomUserData) => {
                 // user['Created Date'] = (user['Created Date'] as string).replace('/', '-');
                 // user['Updated Date'] = (user['Updated Date'] as string).replace('/', '-');
-                // const a = user['Entered Date'];
-                // const b = dayjs(user['Entered Date'], { utc: true }).format();
-                // const c = dayjs(user['Entered Date']).format();
-                // const f = dayjs(user['Entered Date']).format('YYYY-MM-DD');
-                // const d = dayjs.utc(user['Entered Date']).format();
-                // const e = dayjs.utc(user['Entered Date']).format('YYYY-MM-DD');
-                // const x = dayjs(user['Entered Date']).format();
-                // const _new = f.slice(0, 10);
+                const a = user['Entered Date'];
+                const b = dayjs(user['Entered Date'], { utc: true }).format();
+                const c = dayjs(user['Entered Date']).format();
+                const f = dayjs(user['Entered Date']).format('YYYY-MM-DD');
+                const d = dayjs.utc(user['Entered Date']).format();
+                const e = dayjs.utc(user['Entered Date']).format('YYYY-MM-DD');
+                const x = dayjs(user['Entered Date']).format();
+                const _new = f.slice(0, 10);
 
-                // turn utc off because 2022-01-01 will turn to 2021-12-31 if utc is true... weird AF
-                user['Entered Date'] = dayjs(user['Entered Date'], { utc: false }).format('YYYY-MM-DD');
-                user['Created Date'] = dayjs(user['Created Date'], { utc: false }).format('YYYY-MM-DD');
-                user['Updated Date'] = dayjs(user['Updated Date'], { utc: false }).format('YYYY-MM-DD');
+                // turn utc true because 2022-01-01 will turn to 2021-12-31 if utc is false... weird AF
+                user['Entered Date'] = dayjs(user['Entered Date'], { utc: true }).format('YYYY-MM-DD');
+                user['Created Date'] = dayjs(user['Created Date'], { utc: true }).format('YYYY-MM-DD');
+                user['Updated Date'] = dayjs(user['Updated Date'], { utc: true }).format('YYYY-MM-DD');
 
                 switch (user['Position'] as number | undefined) {
                     case 0: user['Position'] = POS_NAME.GE_DI; break;
