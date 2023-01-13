@@ -291,11 +291,14 @@ export class UserService {
      */
     async removeData(id: number): Promise<CustomEntityApiResult<User>> {
         try {
-            const userToRemove: User | null = await this.userRepo.findOneBy({ id });
+            const userToRemove: User | null = await this.userRepo.createQueryBuilder('user').where('user.id = :userId', { userId: id }).getOne();
             if (!userToRemove) {
                 return { message: `User ID ${id} Not Found`, status: 404 };
             }
-            await this.userRepo.remove(userToRemove);
+            await this.userRepo.createQueryBuilder('u')
+                .softDelete()
+                .where('id = :userId', { userId: userToRemove.id })
+                .execute();
             return { message: messages.ECL096, status: 200 };
         } catch (error) {
             return { message: messages.ECL093, status: 500 };
@@ -344,7 +347,6 @@ export class UserService {
         if (!_.isNil(name)) {
             b.andWhere('u.name LIKE :name', { name: `%${name}%` });
         }
-        b.andWhere('u.deleted_date IS NULL');
         b.orderBy('LENGTH(u.name)', 'ASC');
         if (hasAnyLimitOrOffset) {
             let hasLimit = false;

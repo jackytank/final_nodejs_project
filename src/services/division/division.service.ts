@@ -20,7 +20,7 @@ export class DivisionService {
     async searchData(query: Record<string, unknown>): Promise<CustomDataTableResult> {
         const builder = await this.getSearchQueryBuilder(query, true);
         let data: string | Division[];
-        const recordsTotal: number = await this.divRepo.count(); // get total records count
+        const recordsTotal: number = await this.divRepo.createQueryBuilder('d').withDeleted().getCount(); // get total records count
         let recordsFiltered: number; // get filterd records count
         try {
             data = await builder.getRawMany(); //get data
@@ -44,8 +44,8 @@ export class DivisionService {
         const b = this.divRepo.createQueryBuilder('d')
             .select(['d.id as `ID`', 'd.name as `Division Name`', 'd.note as `Division Note`', 'u.name as `Division Leader`', 'd.division_floor_num as `Floor Number`',
                 'd.created_date as `Created Date`', 'd.updated_date as `Updated Date`', 'd.deleted_date as `Deleted Date`'])
-            .leftJoin('user', 'u', 'u.id = d.division_leader_id');
-        b.orderBy('d.id', 'ASC')
+            .leftJoin('user', 'u', 'u.id = d.division_leader_id')
+            .orderBy('d.id', 'ASC')
             .withDeleted();
         if (hasAnyLimitOrOffset) {
             let hasLimit = false;
