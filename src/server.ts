@@ -12,7 +12,7 @@ import flash from 'connect-flash';
 import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler';
 
-moment.tz.setDefault('Asia/Tokyo');
+// moment.tz.setDefault('Asia/Tokyo');
 
 const app = express();
 

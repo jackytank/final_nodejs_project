@@ -8,6 +8,7 @@ import { validate, ValidationError } from 'class-validator';
 import { stringify } from 'csv-stringify';
 import validator from 'validator';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { UserService } from '../../../services/user/user.service';
 import { CustomEntityApiResult, CustomValidateResult, } from '../../../customTypings/express';
 import { User } from '../../../entities/user.entity';
@@ -15,6 +16,8 @@ import { bench, getRandomPassword, isAllElementDup, isHasDup, isValidDate } from
 import { UserModel } from '../../../models/user.model';
 import { AppDataSource } from '../../../DataSource';
 import { _1MB } from '../../../constants';
+
+dayjs.extend(utc);
 
 class UserApiController {
     private userRepo = AppDataSource.getRepository(User);
@@ -50,10 +53,11 @@ class UserApiController {
             let result: CustomDataTableResult = { draw: 0, data: [], recordsFiltered: 0, recordsTotal: 0 };
             if (parseInt(draw as string) !== 1) {
                 result = await this.userService.searchData({ ...req.query, name: validator.escape(req.query.name as string) });
-                if (isAllElementDup(result.data)) {
-                    result.data = _.orderBy(result.data.map((user: CustomUserData) => {
-                        return { ...user, "ID": parseInt(user['ID'] as string) };
-                    }), ['ID'], ['asc']);
+                if (isHasDup(result.data)) {
+                    result.data = await this.sortAscWith2PointerBy(result.data as CustomUserData[]);
+                    // result.data = _.orderBy(result.data.map((user: CustomUserData) => {
+                    //     return { ...user, "ID": parseInt(user['ID'] as string) };
+                    // }), ['ID'], ['asc']);
                 }
                 return res.status(200).json(result);
             }
@@ -61,9 +65,25 @@ class UserApiController {
             // data = await this.userService.searchData(req.query);
             // return res.status(200).json(data);
         } catch (error) {
-            return res.status(500).json({ message: error.message, status: 500 });
+            return res.status(500).json({ message: messages.ECL098, status: 500 });
         }
     }
+
+    async sortAscWith2PointerBy(arr: CustomUserData[]) {
+        const tmpArr = arr;
+        const lgth = arr.length;
+        for (let i = 0; i < lgth - 1; i++) {
+            for (let j = i + 1; j < lgth; j++) {
+                if ((tmpArr[i]['User Name']) === tmpArr[j]['User Name']) {
+                    if (parseInt(tmpArr[i]['ID'] as string) > parseInt(tmpArr[j]['ID'] as string)) {
+                        [tmpArr[i], tmpArr[j]] = [tmpArr[j], tmpArr[i]];
+                    }
+                }
+            }
+        }
+        return tmpArr;
+    }
+
     async getOne(req: Request, res: Response) {
         const result = await this.userService.getOneData(parseInt(req.params.id));
         return res.status(result.status as number).json(result);
@@ -125,7 +145,11 @@ class UserApiController {
             return res.status(result.status as number).json(result);
         }
     }
-    async importCsv(req: Request, res: Response) {
+
+    /**
+     * @deprecated this function is no longer being used, only for referencing
+     */
+    private async importCsv(req: Request, res: Response) {
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
@@ -258,55 +282,72 @@ class UserApiController {
         }
     }
     async exportCsv(req: Request, res: Response) {
-        const { start, end } = bench();
-        const query = req.session.searchQuery;
-        if (!query || query?.draw === '1') {
-            return res.status(400).json({ message: messages.ECL097, status: 400 });
+        try {
+            const { start, end } = bench();
+            const query = req.session.searchQuery;
+            if (!query || query?.draw === '1') {
+                return res.status(400).json({ message: messages.ECL097, status: 400 });
+            }
+            const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(query as Record<string, unknown>, false); // set false to turn off offset,limit search criteria
+            const userList: CustomUserData[] = await builder.getRawMany();
+            // if list is empty then return 404
+            // userList = [];
+            if (userList.length === 0) {
+                return res.status(404).json({ message: messages.ECL097, status: 404 });
+            }
+            start();
+            userList.map((user: CustomUserData) => {
+                // user['Created Date'] = (user['Created Date'] as string).replace('/', '-');
+                // user['Updated Date'] = (user['Updated Date'] as string).replace('/', '-');
+                // const a = user['Entered Date'];
+                // const b = dayjs(user['Entered Date'], { utc: true }).format();
+                // const c = dayjs(user['Entered Date']).format();
+                // const f = dayjs(user['Entered Date']).format('YYYY-MM-DD');
+                // const d = dayjs.utc(user['Entered Date']).format();
+                // const e = dayjs.utc(user['Entered Date']).format('YYYY-MM-DD');
+                // const x = dayjs(user['Entered Date']).format();
+                // const _new = f.slice(0, 10);
+
+                // turn utc off because 2022-01-01 will turn to 2021-12-31 if utc is true... weird AF
+                user['Entered Date'] = dayjs(user['Entered Date'], { utc: false }).format('YYYY-MM-DD');
+                user['Created Date'] = dayjs(user['Created Date'], { utc: false }).format('YYYY-MM-DD');
+                user['Updated Date'] = dayjs(user['Updated Date'], { utc: false }).format('YYYY-MM-DD');
+
+                switch (user['Position'] as number | undefined) {
+                    case 0: user['Position'] = POS_NAME.GE_DI; break;
+                    case 1: user['Position'] = POS_NAME.GR_LE; break;
+                    case 2: user['Position'] = POS_NAME.LE; break;
+                    case 3: user['Position'] = POS_NAME.MEM; break;
+                    default: user['Position'] = ''; break;
+                }
+            });
+            const filename = `list_user_${dayjs(Date.now()).format('YYYYMMDDHHmmss',)}.csv`;
+            const columns = Object.keys(userList[0]);
+            // const columns_string = columns.toString().replace(/,/g, ',');
+            stringify(userList, {
+                header: true,
+                columns: columns,
+                delimiter: ',',
+                quoted: true,
+                quoted_empty: true,
+            }, function (err, data) {
+                if (err) {
+                    return res.status(500).json({ message: messages.ECL097, status: 500 });
+                }
+                // data = '';
+                // if list empty then export only header
+                if (data.length === 0) {
+                    // data = columns_string + '\n';
+                    return res.status(200).json({ data: data, status: 200, message: messages.ECL097, filename: filename });
+                } else {
+                    // data = columns_string + '\n' + data;
+                    end(); // end count time and log to console
+                    return res.status(200).json({ data: data, status: 200, message: `Export to CSV success!, \nTotal records: ${userList.length}`, filename: filename });
+                }
+            });
+        } catch (error) {
+            return res.status(500).json({ message: messages.ECL097, status: 500 });
         }
-        const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(query as Record<string, unknown>, false); // set false to turn off offset,limit search criteria
-        const userList: CustomUserData[] = await builder.getRawMany();
-        // if list is empty then return 404
-        // userList = [];
-        if (userList.length === 0) {
-            return res.status(404).json({ message: messages.ECL097, status: 404 });
-        }
-        start();
-        userList.map((user: CustomUserData) => {
-            user['Created Date'] = dayjs(user['Created Date']).format('YYYY-MM-DD');
-            user['Updated Date'] = dayjs(user['Created Date']).format('YYYY-MM-DD');
-            user['Entered Date'] = dayjs(user['Entered Date']).format('YYYY-MM-DD');
-            switch (user['Position'] as number | undefined) {
-                case 0: user['Position'] = POS_NAME.GE_DI; break;
-                case 1: user['Position'] = POS_NAME.GR_LE; break;
-                case 2: user['Position'] = POS_NAME.LE; break;
-                case 3: user['Position'] = POS_NAME.MEM; break;
-                default: user['Position'] = ''; break;
-            }
-        });
-        const filename = `list_user_${dayjs(Date.now()).format('YYYYMMDDHHmmss',)}.csv`;
-        const columns = Object.keys(userList[0]);
-        // const columns_string = columns.toString().replace(/,/g, ',');
-        stringify(userList, {
-            header: true,
-            columns: columns,
-            delimiter: ',',
-            quoted: true,
-            quoted_empty: true,
-        }, function (err, data) {
-            if (err) {
-                res.status(500).json({ message: messages.ECL097, status: 500 });
-            }
-            // data = '';
-            // if list empty then export only header
-            if (data.length === 0) {
-                // data = columns_string + '\n';
-                res.status(200).json({ data: data, status: 200, message: messages.ECL097, filename: filename });
-            } else {
-                // data = columns_string + '\n' + data;
-                end(); // end count time and log to console
-                res.status(200).json({ data: data, status: 200, message: `Export to CSV success!, \nTotal records: ${userList.length}`, filename: filename });
-            }
-        });
     }
     //for routing control purposes - END
 }

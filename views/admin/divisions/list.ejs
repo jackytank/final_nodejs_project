@@ -1,7 +1,35 @@
 <div class="container pt-4">
     <div class="container">
         <div class="text-center">
-            <h1>DIVISION LIST</h1>
+            <!-- start table -->
+            <div class="table-responsive mb-4">
+                <table class="table" id="divisionsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th><span>ID</span></th>
+                            <th><span>Division Name</span></th>
+                            <th><span>Division Note</span></th>
+                            <th><span>Division Leader</span></th>
+                            <th><span>Floor Number</span></th>
+                            <th><span>Created Date</span></th>
+                            <th><span>Updated Date</span></th>
+                            <th><span>Deleted Date</span></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <!-- end table  -->
+
+            <!-- output csv, new btn - START -->
+            <div class="mb-3 d-flex flex-row justify-content-start">
+                <form id="importCsvForm">
+                    <!-- <div class="input-group"> -->
+                    <input type="file" class="form-control" name="file" id="importCsvInput" aria-describedby="importCsvBtn" aria-label="Upload" hidden>
+                    <button type="button" class="btn btn-outline-secondary" id="importCsvBtn" onclick="document.querySelector('#importCsvInput').click()">Import CSV</button>
+                    <!-- </div> -->
+                </form>
+            </div>
+            <!-- output csv, new btn - END -->
         </div>
     </div>
 </div>

@@ -1,84 +1,84 @@
 <form id="addEditDeleteForm" class="" method="<%= formMethod %>" data-form-purpose="<%= formPurpose %>">
-	<% 
+    <% 
 		const isInputDisabled = [1,2,3].includes(loginUser.position_id) ? `disabled`:``
 		const {name, email, division_id, entered_date, position_id} = userData;
 	%>
-	<div class="row">
-		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
-			<div class="input-group">
-				<label for="name" class="input-group-text w-50">ID</label>
-				<% if (typeof formPurpose !== 'undefined') { %>
-				<% if (formPurpose === 'editUser') { %>
-				<label class="form-control" data-user-id="<%= userData.id %>" id="userIdToDeleteAndUpdate"><%= userData.id %></label>
-				<% } %>
-				<% } %>
-			</div>
-		</div>
-		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
-			<div class="input-group">
-				<label for="name" class="input-group-text w-50">User Name</label>
-				<input type="text" id="name" class="form-control" name="name" value="<%= name ?? '' %>" <%= isInputDisabled %> />
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
-			<div class="input-group">
-				<label class="input-group-text w-50" for="email">Email:</label>
-				<input type="text" id="email" class="form-control" name="email" value="<%= email ?? '' %>" <%= isInputDisabled %> />
-			</div>
-		</div>
-		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
-			<div class="input-group">
-				<label class="input-group-text w-50" for="selectDivision">Division: </label>
-				<select data-user-division-id="<%= division_id %>" name="division_id" class="form-select" id="selectDivision" <%= isInputDisabled %>>
-					<!-- <option v-for="(item, index) in divisionsList" :key="index" :value="item.id">{{item.name}}</option> -->
-				</select>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
-			<div class="input-group">
-				<label for="entered_date" class="input-group-text w-50">Entered Date</label>
-				<input type="text" id="entered_date" class="form-control" name="entered_date" value="<%= entered_date ?? '' %>" <%= isInputDisabled %> />
-			</div>
-		</div>
-		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
-			<div class="input-group">
-				<label class="input-group-text w-50" for="selectPosition">Position: </label>
-				<select data-user-position-id="<%= position_id %>" name="position_id" class="form-select" id="selectPosition" <%= isInputDisabled %>>
-					<!-- <option v-for="(item, index) in posList" :key="index" :value="item.id">{{item.name}}</option> -->
-				</select>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
-			<div class="input-group">
-				<label class="input-group-text w-50" for="password">Password:</label>
-				<input type="password" id="password" class="form-control" name="password">
-			</div>
-		</div>
-		<div class="col-md-6 col-sm-12 mb-4 has-error-wrapper has-error-wrapper">
-			<div class="input-group">
-				<label class="input-group-text w-50" for="retype">Password Confirmation:</label>
-				<input type="password" id="retype" class="form-control" name="retype">
-			</div>
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
+            <div class="input-group">
+                <label for="name" class="input-group-text w-50">ID</label>
+                <% if (typeof formPurpose !== 'undefined') { %>
+                <% if (formPurpose === 'editUser') { %>
+                <label class="form-control" data-user-id="<%= userData.id %>" id="userIdToDeleteAndUpdate"><%= userData.id %></label>
+                <% } %>
+                <% } %>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
+            <div class="input-group">
+                <label for="name" class="input-group-text w-50">User Name</label>
+                <input type="text" id="name" class="form-control" name="name" value="<%= name ?? '' %>" <%= isInputDisabled %> />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
+            <div class="input-group">
+                <label class="input-group-text w-50" for="email">Email:</label>
+                <input type="text" id="email" class="form-control" name="email" value="<%= email ?? '' %>" <%= isInputDisabled %> />
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
+            <div class="input-group">
+                <label class="input-group-text w-50" for="selectDivision">Division: </label>
+                <select data-user-division-id="<%= division_id %>" name="division_id" class="form-select" id="selectDivision" <%= isInputDisabled %>>
+                    <!-- <option v-for="(item, index) in divisionsList" :key="index" :value="item.id">{{item.name}}</option> -->
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
+            <div class="input-group">
+                <label for="entered_date" class="input-group-text w-50">Entered Date</label>
+                <input type="text" id="entered_date" class="form-control" name="entered_date" value="<%= entered_date ?? '' %>" <%= isInputDisabled %> />
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
+            <div class="input-group">
+                <label class="input-group-text w-50" for="selectPosition">Position: </label>
+                <select data-user-position-id="<%= position_id %>" name="position_id" class="form-select" id="selectPosition" <%= isInputDisabled %>>
+                    <!-- <option v-for="(item, index) in posList" :key="index" :value="item.id">{{item.name}}</option> -->
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
+            <div class="input-group">
+                <label class="input-group-text w-50" for="password">Password:</label>
+                <input type="password" id="password" class="form-control" name="password">
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper has-error-wrapper">
+            <div class="input-group">
+                <label class="input-group-text w-50" for="retype">Password Confirmation:</label>
+                <input type="password" id="retype" class="form-control" name="retype">
+            </div>
+        </div>
+    </div>
 
-	<!-- events buttons -->
+    <!-- events buttons -->
 
-	<% if (typeof formPurpose !== 'undefined') { %>
+    <% if (typeof formPurpose !== 'undefined') { %>
 
-	<% if (formPurpose === 'addUser' && loginUser.position_id === 0) { %>
-	<button type="button" class="btn btn-outline-success me-2 mb-4" id="registerBtn">Register</button>
-	<% } %>
+    <% if (formPurpose === 'addUser' && loginUser.position_id === 0) { %>
+    <button type="button" class="btn btn-outline-success me-2 mb-4" id="registerBtn">Register</button>
+    <% } %>
 
-	<!-- Trường hợp user.position_id của login user là 0 và chuyển đến màn hình trước từ nút "Add New" thì không hiển thị -->
-	<% if (formPurpose === 'editUser') { %>
-		<% 
+    <!-- Trường hợp user.position_id của login user là 0 và chuyển đến màn hình trước từ nút "Add New" thì không hiển thị -->
+    <% if (formPurpose === 'editUser') { %>
+    <% 
 			let isUpdateAppear = false;
 			let isDeleteAppear = false;
 			if([0].includes(loginUser.position_id)){
@@ -88,15 +88,15 @@
 				isUpdateAppear = true;
 				isDeleteAppear = true;
 			}
-		%>
-		<% if (isUpdateAppear) { %>
-			<button type="button" class="btn btn-outline-primary me-2 mb-4" id="updateBtn">Update</button>
-		<% } %>
-		<% if (isDeleteAppear) { %>
-			<button type="button" class="btn btn-outline-danger me-2 mb-4" id="deleteBtn">Delete</button>
-		<% } %>
-	<% } %>
+	%>
+    <% if (isUpdateAppear) { %>
+    <button type="button" class="btn btn-outline-primary me-2 mb-4" id="updateBtn">Update</button>
+    <% } %>
+    <% if (isDeleteAppear) { %>
+    <button type="button" class="btn btn-outline-danger me-2 mb-4" id="deleteBtn">Delete</button>
+    <% } %>
+    <% } %>
 
-	<% } %>
-	<a href="/admin/users/list" class="btn btn-outline-secondary me-2 mb-4" id="cancelBtn">Cancel</a>
+    <% } %>
+    <a href="/admin/users/list" class="btn btn-outline-secondary me-2 mb-4" id="cancelBtn">Cancel</a>
 </form>

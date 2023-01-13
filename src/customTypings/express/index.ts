@@ -74,6 +74,26 @@ export interface CustomUserData {
     "deleted": string;
 }
 
+export interface CustomDivisionData {
+    "ID": string | number;
+    "Division Name": string,
+    "Division Note": string,
+    "Division Leader": string | number,
+    "Floor Number": string | number,
+    "Created Date": string | Date,
+    "Deleted Date": string | Date,
+    "Updated Date": string | Date,
+    "id": string,
+    "name": string,
+    "note": string,
+    "division_leader_id": string | number,
+    "division_floor_num": string | number,
+    "created_date": string | Date,
+    "updated_date": string | Date,
+    "deleted_date": string | Date;
+    "Delete": string;
+}
+
 export type CustomValidateResult<Entity> = {
     isValid: boolean;
     message?: string;

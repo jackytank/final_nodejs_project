@@ -633,7 +633,7 @@ function checkFromTo(fromId, toId, submitBtnId) {
 }
 
 const escapeHtml = (htmlStr) => {
-  return htmlStr != null ?
+  return (htmlStr != null && typeof htmlStr !== 'number') ?
     htmlStr.replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")

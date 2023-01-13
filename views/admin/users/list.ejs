@@ -1,67 +1,67 @@
 <div class="container pt-4">
-	<div class="container">
-		<div class="text-center">
-			<!-- start form -->
-			<form action="/admin/users/search" method="get" id="searchForm" class="">
-				<div class="row justify-content-between">
-					<div class="col-md-6 col-sm-12 mb-3 validate-wrapper">
-						<div class="input-group">
-							<label class="input-group-text w-50">User Name</label>
-							<input type="text" class="form-control" id="name" name="name" <%=queryBack.name? `value=${queryBack.name}` : `` %>>
-						</div>
-					</div>
-				</div>
-				<div class="row justify-content-between">
-					<div class="col-md-6 col-sm-12 mb-3 validate-wrapper">
-						<div class="input-group">
-							<label class="input-group-text w-50">Entered Date From</label>
-							<input class="form-control" type="text" name="enteredDateFrom" id="enteredDateFrom">
-						</div>
-					</div>
-					<div class="col-md-6 col-sm-12 mb-3 validate-wrapper">
-						<div class="input-group">
-							<label class="input-group-text w-50">Entered Date To</label>
-							<input class="form-control" type="text" name="enteredDateTo" id="enteredDateTo">
-						</div>
-					</div>
-				</div>
-				<div class="row mb-3 text-center">
-					<div class="col">
-						<button type="button" class="btn btn-outline-danger" id="clearBtn">
-							Clear
-						</button>
-						<button type="submit" class="btn btn-outline-primary" id="searchBtn">
-							Search
-						</button>
-					</div>
-				</div>
-			</form>
-			<!-- end form -->
+    <div class="container">
+        <div class="text-center">
+            <!-- start form -->
+            <form action="/admin/users/search" method="get" id="searchForm" class="">
+                <div class="row justify-content-between">
+                    <div class="col-md-6 col-sm-12 mb-3 validate-wrapper">
+                        <div class="input-group">
+                            <label class="input-group-text w-50">User Name</label>
+                            <input type="text" class="form-control" id="name" name="name" <%=queryBack.name? `value=${queryBack.name}` : `` %>>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-between">
+                    <div class="col-md-6 col-sm-12 mb-3 validate-wrapper">
+                        <div class="input-group">
+                            <label class="input-group-text w-50">Entered Date From</label>
+                            <input class="form-control" type="text" name="enteredDateFrom" id="enteredDateFrom">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-3 validate-wrapper">
+                        <div class="input-group">
+                            <label class="input-group-text w-50">Entered Date To</label>
+                            <input class="form-control" type="text" name="enteredDateTo" id="enteredDateTo">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3 text-center">
+                    <div class="col">
+                        <button type="button" class="btn btn-outline-danger" id="clearBtn">
+                            Clear
+                        </button>
+                        <button type="submit" class="btn btn-outline-primary" id="searchBtn">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <!-- end form -->
 
-			<!-- start table -->
-			<div class="table-responsive mb-4">
-				<table class="table" id="usersTable">
-					<thead class="table-light">
-						<tr>
-							<!-- <th><span>ID</span></th> -->
-							<th><span>User Name</span></th>
-							<th><span>Email</span></th>
-							<th><span>Division Name</span></th>
-							<th><span>Entered Date</span></th>
-							<th><span>Position</span></th>
-						</tr>
-					</thead>
-				</table>
-			</div>
-			<!-- end table  -->
+            <!-- start table -->
+            <div class="table-responsive mb-4">
+                <table class="table" id="usersTable">
+                    <thead class="table-light">
+                        <tr>
+                            <!-- <th><span>ID</span></th> -->
+                            <th><span>User Name</span></th>
+                            <th><span>Email</span></th>
+                            <th><span>Division Name</span></th>
+                            <th><span>Entered Date</span></th>
+                            <th><span>Position</span></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <!-- end table  -->
 
-			<!-- output csv, new btn - START -->
-			<% if (loginUser.position_id === 0) { %>
-			<div class="mb-3 d-flex flex-row">
-				<div class="me-2">
-					<a class="btn btn-outline-secondary" href="/admin/users/addPage">New</a>
-				</div>
-				<!-- <div class="col-md-4">
+            <!-- output csv, new btn - START -->
+            <% if (loginUser.position_id === 0) { %>
+            <div class="mb-3 d-flex flex-row">
+                <div class="me-2">
+                    <a class="btn btn-outline-secondary" href="/admin/users/addPage">New</a>
+                </div>
+                <!-- <div class="col-md-4">
 						<form id="importCsvForm">
 							<div class="input-group">
 								<input type="file" class="form-control" name="file" id="importCsvInput">
@@ -69,15 +69,15 @@
 							</div>
 						</form>
 					</div> -->
-				<div class="me-2">
-					<button type="button" class="btn btn-outline-secondary" id="exportCsvBtn">Output CSV</button>
-					<a hidden id="downloadTag"></a>
-				</div>
-			</div>
-			<% } %>
-			<!-- output csv, new btn - END -->
-		</div>
-	</div>
+                <div class="me-2">
+                    <button type="button" class="btn btn-outline-secondary" id="exportCsvBtn">Output CSV</button>
+                    <a hidden id="downloadTag"></a>
+                </div>
+            </div>
+            <% } %>
+            <!-- output csv, new btn - END -->
+        </div>
+    </div>
 </div>
 
 <script src="/asset/js/site/user/list.js"></script>
