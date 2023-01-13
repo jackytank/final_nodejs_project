@@ -12,11 +12,15 @@ const AppDataSource = new DataSource({
     entities: [__dirname + '/entities/*.entity.js'],
     synchronize: false,
     logging: false,
-    timezone: '+07:00',
+    timezone: '+00:00',
 });
 
 AppDataSource.initialize()
     .then(connection => {
+        // (async () => {
+        //     await connection.query(`SET GLOBAL time_zone = '+00:00';`);
+        //     await connection.query(`SET time_zone = '+00:00';`);
+        // })();
         logger.info(`Database connected. On port ${process.env.TYPEORM_PORT}`);
         console.log(`Database connected. On port ${process.env.TYPEORM_PORT}`);
 
