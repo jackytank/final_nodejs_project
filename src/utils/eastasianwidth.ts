@@ -324,7 +324,7 @@ class EAW {
 
     isStringContainsFullWidth(str: string): boolean {
         let has2ByteChar = false;
-        Array.from(str).some((char) => {
+        Array.from(str + "").some((char) => {
             if (this.length(char) === 2) {
                 has2ByteChar = true;
                 return true;

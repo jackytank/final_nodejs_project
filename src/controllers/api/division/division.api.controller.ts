@@ -1,3 +1,4 @@
+import { messages } from './../../../constants';
 import { Request, Response } from "express";
 import _ from "lodash";
 import * as csv from 'csv-parse';
@@ -54,10 +55,10 @@ class DivisionApiController {
         const msgObj: CustomEntityApiResult<Division> = { messages: [], status: 500 };
         try {
             if (req.file == undefined || req.file.mimetype !== 'text/csv') {
-                return res.status(400).json({ message: 'Please upload a CSV file' });
+                return res.status(400).json({ message: messages.ECL033('CSV') });
             }
             if (req.file.size > (_1MB * 2)) {
-                return res.status(400).json({ message: 'File size cannot be larger than 2MB' });
+                return res.status(400).json({ message: messages.ECL034('2 MB') });
             }
             const parser = csv.parse({
                 delimiter: ',', // phân cách giữa các cell trong mỗi row
@@ -67,14 +68,14 @@ class DivisionApiController {
             });
             const records: unknown[] = await this.divService.readCsvData(req.file.path, parser);
             if (records.length === 0) {
-                return res.status(400).json({ message: 'File is empty' });
+                return res.status(400).json({ message: messages.ECL095 });
             }
             const idRecords = records.filter((record: CustomDivisionData) => record['id'] !== '').map((record: CustomDivisionData) => record['id']);
             const deleteArr: Division[] = []; // array of users to delete
             const insertArr: Division[] = []; // array of users to insert
             const updateArr: Division[] = []; // array of users to update
             // query data from db first then pass it around to prevent multiple query to db, only select id,username,email for performance reason
-            const builder = this.divRepo.createQueryBuilder('d').select(['d.id', 'd.email']);
+            const builder = this.divRepo.createQueryBuilder('d').select(['d.id']);
             if (idRecords.length > 0) {
                 builder.orWhere('d.id IN (:ids)', { ids: idRecords });
             }
@@ -86,9 +87,11 @@ class DivisionApiController {
                 for (let i = 0; i < records.length; i++) {
                     const row: CustomDivisionData = records[i] as CustomDivisionData;
                     const div: Division = Object.assign(new Division(), {
-                        id: row['id'] === '' ? null : _.isString(row['id']) ? parseInt(row['id']) : row['id'],
-                        name: row['name'] === '' ? null : row['name'],
-                        note: row['note'] === '' ? null : row['note'],
+                        id: row['ID'] === '' ? null : _.isString(row['ID']) ? parseInt(row['ID']) : row['ID'],
+                        name: row['Division Name'] || null,
+                        note: row['Division Note'] || null,
+                        division_leader_id: row['Division Leader'] || null,
+                        division_floor_num: row['Floor Number'] || null
                     });
                     // validate entity User imperatively using 'class-validator'
                     const errors: ValidationError[] = await validate(div);
@@ -100,8 +103,8 @@ class DivisionApiController {
                     console.log('Reading csv row: ', i);
                     // + Trường hợp id rỗng => thêm mới user
                     if (_.isNil(row['id']) || row['id'] === '') {
-                        if (row['Delete'] === 'y') {
-                            // deleted="y" và colum id không có nhập thì không làm gì hết, ngược lại sẽ xóa row theo id tương ứng dưới DB trong bảng user
+                        if (row['Delete'] === 'Y') {
+                            // Delete="Y" và colum id không có nhập thì không làm gì hết, ngược lại sẽ xóa row theo id tương ứng dưới DB trong bảng user
                             continue;
                         }
                         div.created_date = new Date();
@@ -109,10 +112,10 @@ class DivisionApiController {
                         dbData.push(div); // push to dbData to check unique later
                         insertArr.push(div); // push to map to insert later
                     } else {
-                        // Trường hợp id có trong db (chứ ko phải trong transaction) => chỉnh sửa user nếu deleted != 'y'
+                        // Trường hợp id có trong db (chứ ko phải trong transaction) => chỉnh sửa user nếu deleted != 'Y'
                         const findUser = _.find(dbData, { id: div.id });
                         if (findUser) {
-                            if (row['Delete'] === 'y') {
+                            if (row['Delete'] === 'Y') {
                                 dbData.splice(dbData.indexOf(findUser), 1); // remove from dbData to check unique later
                                 deleteArr.push(findUser); // push to map to delete later
                             } else {
@@ -121,7 +124,7 @@ class DivisionApiController {
                             }
                         } else {
                             // Trường hợp id không có trong db => hiển thị lỗi "id not exist"
-                            msgObj.messages?.push(`Row ${i + 1} : Id not exist`);
+                            msgObj.messages?.push(`Row ${i + 1} : ${messages.ECL050}`);
                         }
                     }
                 }
@@ -141,19 +144,19 @@ class DivisionApiController {
             );
             // delete, update, insert - END
 
-            // check if msgObj is not empty => meaning has errors => return 500
+            // check if msgObj is not empty => meaning has errors => return BadRequest 400
             if (msgObj?.messages && msgObj.messages?.length > 0) {
                 end();
                 msgObj.status = 400;
                 await queryRunner.rollbackTransaction();
-                return res.status(msgObj.status ?? 500).json({ messages: msgObj.messages, status: msgObj.status });
+                return res.status(msgObj.status).json({ messages: msgObj.messages, status: msgObj.status });
             } else {
                 end();
                 await queryRunner.commitTransaction();
-                return res.status(200).json({ message: 'Import csv file successfully!', status: 200, data: records });
+                return res.status(200).json({ message: messages.ECL092, status: 200, data: records });
             }
         } catch (error) {
-            return res.status(500).json({ messages: ['Internal Server Error'], status: 500 });
+            return res.status(500).json({ messages: messages.ECL098, status: 500 });
         } finally {
             await queryRunner.release();
         }

@@ -68,8 +68,7 @@ export class DivisionService {
     async readCsvData(filePath: string, parser: csv.Parser): Promise<unknown[]> {
         const result: unknown[] = [];
         return await new Promise((resolve, reject) =>
-            fs
-                .createReadStream(filePath)
+            fs.createReadStream(filePath)
                 .pipe(parser)
                 .on('data', row => {
                     result.push(row);
@@ -108,9 +107,9 @@ export class DivisionService {
             } else {
                 insertedUser = await queryRunner.manager.save(Division, user);
             }
-            if (dbData) {
-                dbData.push(insertedUser as Division);
-            }
+            // if (dbData) {
+            //     dbData.push(insertedUser as Division);
+            // }
             return {
                 message: messages.ECL096,
                 data: insertedUser as Division,
@@ -143,9 +142,9 @@ export class DivisionService {
             } else {
                 updatedDiv = await queryRunner.manager.update(Division, { id: div.id }, div);
             }
-            if (dbData) {
-                dbData.push(updatedDiv as Division);
-            }
+            // if (dbData) {
+            //     dbData.push(updatedDiv as Division);
+            // }
             return {
                 message: messages.ECL096,
                 data: updatedDiv as Division,

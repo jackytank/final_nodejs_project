@@ -136,16 +136,16 @@ export class UserService {
         try {
             const findUser: User | null = await this.userRepo.findOne({ where: { id: id }, });
             if (!findUser) {
-                return { message: `User ID ${id} Not Found!`, status: 404 };
+                return { message: messages.ECL050, status: 404 };
             }
             const formattedDateUser = { ...findUser, "entered_date": dayjs(findUser.entered_date).format('YYYY/MM/DD') };
             return {
-                message: `Found user with id ${id}`,
+                message: '',
                 data: formattedDateUser,
                 status: 200,
             };
         } catch (error) {
-            return { message: `Error when get one user`, status: 500 };
+            return { message: messages.ECL098, status: 500 };
         }
     }
     /**
@@ -263,7 +263,7 @@ export class UserService {
             id: user.id,
         });
         if (!findUser) {
-            return { message: `User ${user.id} not found`, status: 404 };
+            return { message: messages.ECL050, status: 404 };
         }
         try {
             let updatedUser: User | UpdateResult;
@@ -293,7 +293,7 @@ export class UserService {
         try {
             const userToRemove: User | null = await this.userRepo.createQueryBuilder('user').where('user.id = :userId', { userId: id }).getOne();
             if (!userToRemove) {
-                return { message: `User ID ${id} Not Found`, status: 404 };
+                return { message: messages.ECL050, status: 404 };
             }
             await this.userRepo.createQueryBuilder('u')
                 .softDelete()
@@ -347,7 +347,7 @@ export class UserService {
         if (!_.isNil(name)) {
             b.andWhere('u.name LIKE :name', { name: `%${name}%` });
         }
-        b.orderBy('LENGTH(u.name)', 'ASC');
+        b.orderBy('u.name', 'ASC');
         if (hasAnyLimitOrOffset) {
             let hasLimit = false;
             if (!_.isNil(length)) {
