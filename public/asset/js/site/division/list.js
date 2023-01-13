@@ -184,7 +184,7 @@ $(function () {
         });
     }
     function events() {
-        $(document).on('click', importCsvBtnIdStr, function () {
+        $(document).on('change', importCsvInputEl, function () {
             if (importCsvFormEl.valid()) {
                 const files = importCsvInputEl.prop('files');
                 const file = files[0];
@@ -193,7 +193,7 @@ $(function () {
                 $.ajax({
                     method: 'POST',
                     enctype: 'multipart/form-data',
-                    url: '/api/admin/users/csv/import',
+                    url: '/api/admin/divisions/csv/import',
                     data: formData,
                     contentType: false,
                     processData: false,

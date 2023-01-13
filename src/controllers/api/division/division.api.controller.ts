@@ -93,20 +93,29 @@ class DivisionApiController {
                         division_leader_id: row['Division Leader'] || null,
                         division_floor_num: row['Floor Number'] || null
                     });
-                    // validate entity User imperatively using 'class-validator'
+                    // validate entity User imperatively using 'class-validator' and 'lodash'
+                    const tmp = _.toNumber(div.division_leader_id);
+                    if (div.division_leader_id == null || isNaN(parseInt(div.division_leader_id + ""))) {
+                        msgObj.messages?.push(`Dòng: ${i + 1} ${messages.ECL010('Division Leader')}`);
+                        continue;
+                    }
+                    if (div.division_floor_num == null|| isNaN(parseInt(div.division_floor_num + ""))) {
+                        msgObj.messages?.push(`Dòng: ${i + 1} ${messages.ECL010('Floor Number')}`);
+                        continue;
+                    }
                     const errors: ValidationError[] = await validate(div);
                     if (errors.length > 0) {
                         const errMsgStr = errors.map(error => Object.values(error.constraints as { [type: string]: string; })).join(', ');
-                        msgObj.messages?.push(`Row ${i + 1} : ${errMsgStr}`);
+                        msgObj.messages?.push(`Dòng: ${i + 1} ${errMsgStr}`);
                         continue;
                     }
                     console.log('Reading csv row: ', i);
                     // + Trường hợp id rỗng => thêm mới user
                     if (_.isNil(row['id']) || row['id'] === '') {
-                        if (row['Delete'] === 'Y') {
-                            // Delete="Y" và colum id không có nhập thì không làm gì hết, ngược lại sẽ xóa row theo id tương ứng dưới DB trong bảng user
-                            continue;
-                        }
+                        // if (row['Delete'] === 'Y') {
+                        //     // Delete="Y" và colum id không có nhập thì không làm gì hết, ngược lại sẽ xóa row theo id tương ứng dưới DB trong bảng user
+                        //     continue;
+                        // }
                         div.created_date = new Date();
                         div.updated_date = new Date();
                         dbData.push(div); // push to dbData to check unique later
@@ -124,7 +133,7 @@ class DivisionApiController {
                             }
                         } else {
                             // Trường hợp id không có trong db => hiển thị lỗi "id not exist"
-                            msgObj.messages?.push(`Row ${i + 1} : ${messages.ECL050}`);
+                            msgObj.messages?.push(`Dòng: ${i + 1} ${messages.ECL050}`);
                         }
                     }
                 }

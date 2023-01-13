@@ -2,8 +2,8 @@ import { messages } from './../constants';
 import { Base } from './base';
 import { Entity, Column, ManyToOne } from "typeorm";
 import { User } from './user.entity';
-import { IsInt, IsNotEmpty, IsNumber, MaxLength, ValidationArguments } from 'class-validator';
-import { IsAll1Bytes } from '../middlewares/validator/division/division.validator';
+import { IsInt, IsNotEmpty, IsNumber, IsNumberString, MaxLength, ValidationArguments } from 'class-validator';
+import { CustomIsStringNumber, IsAll1Bytes } from '../middlewares/validator/division/division.validator';
 
 
 /**
@@ -44,18 +44,18 @@ export class Division extends Base {
     @IsNotEmpty({
         message: messages.ECL001('Division Leader')
     })
-    @IsInt({
-        message: messages.ECL010('Division Leader')
-    })
+    // @CustomIsStringNumber({
+    //     message: messages.ECL010('Division Leader')
+    // })
     division_leader_id!: number;
 
     @Column({ name: 'division_floor_num', type: 'int', nullable: false })
     @IsNotEmpty({
         message: messages.ECL001('Floor Number')
     })
-    @IsInt({
-        message: messages.ECL010('Floor Number')
-    })
+    // @CustomIsStringNumber({
+    //     message: messages.ECL010('Floor Number')
+    // })
     division_floor_num!: number;
 
     // @ManyToOne(type => User, user => user.divisions)
