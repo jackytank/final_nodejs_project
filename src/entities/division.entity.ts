@@ -8,6 +8,7 @@ import { CustomIsStringNumber, IsAll1Bytes } from '../middlewares/validator/divi
 
 /**
  * Model definition
+ * Remember: validation run from lower to upper, ex: @IsEmpty @IsNull @IsCool -> @IsCool run first, then @IsNull , finally @IsEmpty
  */
 @Entity({
     name: 'division',
@@ -18,9 +19,6 @@ import { CustomIsStringNumber, IsAll1Bytes } from '../middlewares/validator/divi
 })
 export class Division extends Base {
     @Column({ name: 'name', type: "varchar", length: 255, nullable: false })
-    @IsNotEmpty({
-        message: messages.ECL001('Division Name')
-    })
     @MaxLength(255, {
         message: (args: ValidationArguments) => {
             if (parseInt(args.value.length) > 255) {
@@ -32,6 +30,9 @@ export class Division extends Base {
     @IsAll1Bytes({
         message: messages.ECL004('Division Name')
     })
+    @IsNotEmpty({
+        message: messages.ECL001('Division Name')
+    })
     name!: string;
 
     @Column({ name: 'note', type: "text", nullable: true })
@@ -41,21 +42,21 @@ export class Division extends Base {
     note!: string;
 
     @Column({ name: 'division_leader_id', type: 'bigint', nullable: false })
+    @CustomIsStringNumber({
+        message: messages.ECL010('Division Leader')
+    })
     @IsNotEmpty({
         message: messages.ECL001('Division Leader')
     })
-    // @CustomIsStringNumber({
-    //     message: messages.ECL010('Division Leader')
-    // })
     division_leader_id!: number;
 
     @Column({ name: 'division_floor_num', type: 'int', nullable: false })
+    @CustomIsStringNumber({
+        message: messages.ECL010('Floor Number')
+    })
     @IsNotEmpty({
         message: messages.ECL001('Floor Number')
     })
-    // @CustomIsStringNumber({
-    //     message: messages.ECL010('Floor Number')
-    // })
     division_floor_num!: number;
 
     // @ManyToOne(type => User, user => user.divisions)

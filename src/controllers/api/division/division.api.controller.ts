@@ -2,6 +2,7 @@ import { messages } from './../../../constants';
 import { Request, Response } from "express";
 import _ from "lodash";
 import * as csv from 'csv-parse';
+import * as fs from 'fs';
 import validator from "validator";
 import { _1MB } from "../../../constants";
 import { CustomDataTableResult, CustomDivisionData, CustomEntityApiResult, CustomUserData, CustomValidateResult } from "../../../customTypings/express";
@@ -10,6 +11,7 @@ import { Division } from "../../../entities/division.entity";
 import { DivisionService } from "../../../services/division/division.service";
 import { bench, isAllElementDup } from "../../../utils/common";
 import { validate, ValidationError } from "class-validator";
+import logger from '../../../winston';
 
 class DivisionApiController {
     private divRepo = AppDataSource.getRepository(Division);
@@ -55,9 +57,15 @@ class DivisionApiController {
         const msgObj: CustomEntityApiResult<Division> = { messages: [], status: 500 };
         try {
             if (req.file == undefined || req.file.mimetype !== 'text/csv') {
+                fs.unlink(req.file?.path as string, err => {
+                    if (err) { logger.error(err.message); }
+                });
                 return res.status(400).json({ message: messages.ECL033('CSV') });
             }
             if (req.file.size > (_1MB * 2)) {
+                fs.unlink(req.file?.path as string, err => {
+                    if (err) { logger.error(err.message); }
+                });
                 return res.status(400).json({ message: messages.ECL034('2 MB') });
             }
             const parser = csv.parse({
@@ -66,26 +74,35 @@ class DivisionApiController {
                 skip_empty_lines: true, // bỏ qua các dòng trống
                 columns: true, // gán header cho từng column trong row
             });
-            const records: unknown[] = await this.divService.readCsvData(req.file.path, parser);
-            if (records.length === 0) {
+            const csvResult = await this.divService.readCsvData(req.file.path, parser);
+            if(csvResult.status === 500){
+                return res.status(csvResult.status).json({ message: messages.ECL095 });
+            }
+            if (csvResult.data.length === 0) {
                 return res.status(400).json({ message: messages.ECL095 });
             }
-            const idRecords = records.filter((record: CustomDivisionData) => record['id'] !== '').map((record: CustomDivisionData) => record['id']);
-            const deleteArr: Division[] = []; // array of users to delete
-            const insertArr: Division[] = []; // array of users to insert
-            const updateArr: Division[] = []; // array of users to update
-            // query data from db first then pass it around to prevent multiple query to db, only select id,username,email for performance reason
-            const builder = this.divRepo.createQueryBuilder('d').select(['d.id']);
-            if (idRecords.length > 0) {
-                builder.orWhere('d.id IN (:ids)', { ids: idRecords });
+            const divIdRecords = csvResult.data.filter((record: CustomDivisionData) => record['ID'] !== '').map((record: CustomDivisionData) => record['ID']);
+            const leaderIdRecords = csvResult.data.filter((record: CustomDivisionData) => record['Division Leader'] !== '').map((record: CustomDivisionData) => record['Division Leader']);
+            const deleteArr: Division[] = []; // array of divisions to delete
+            const insertArr: Division[] = []; // array of divisions to insert
+            const updateArr: Division[] = []; // array of divisions to update
+            // query data from db first then pass it around to prevent multiple query to db and using await in loop, only select few columns for performance reason
+            const builder = this.divRepo.createQueryBuilder('d').select(['d.id as `Div ID`', 'u.id as `User ID`'])
+                .innerJoin('user', 'u');
+            if (divIdRecords.length > 0) {
+                builder.orWhere('d.id IN (:ids)', { ids: divIdRecords });
             }
-            const dbData = await builder.getMany();
+            if (leaderIdRecords.length > 0) {
+                builder.orWhere('u.id IN (:userIds)', { userIds: leaderIdRecords });
+            }
+            const dbData = await builder.getRawMany();
+            let isValid = true;
             const { start, end } = bench();
             start();
             const startValidateFunc = async () => {
                 // iterate csv records data and check row
-                for (let i = 0; i < records.length; i++) {
-                    const row: CustomDivisionData = records[i] as CustomDivisionData;
+                for (let i = 0; i < csvResult.data.length; i++) {
+                    const row: CustomDivisionData = csvResult.data[i] as CustomDivisionData;
                     const div: Division = Object.assign(new Division(), {
                         id: row['ID'] === '' ? null : _.isString(row['ID']) ? parseInt(row['ID']) : row['ID'],
                         name: row['Division Name'] || null,
@@ -93,47 +110,50 @@ class DivisionApiController {
                         division_leader_id: row['Division Leader'] || null,
                         division_floor_num: row['Floor Number'] || null
                     });
-                    // validate entity User imperatively using 'class-validator' and 'lodash'
-                    const tmp = _.toNumber(div.division_leader_id);
-                    if (div.division_leader_id == null || isNaN(parseInt(div.division_leader_id + ""))) {
-                        msgObj.messages?.push(`Dòng: ${i + 1} ${messages.ECL010('Division Leader')}`);
-                        continue;
-                    }
-                    if (div.division_floor_num == null|| isNaN(parseInt(div.division_floor_num + ""))) {
-                        msgObj.messages?.push(`Dòng: ${i + 1} ${messages.ECL010('Floor Number')}`);
-                        continue;
-                    }
-                    const errors: ValidationError[] = await validate(div);
-                    if (errors.length > 0) {
-                        const errMsgStr = errors.map(error => Object.values(error.constraints as { [type: string]: string; })).join(', ');
-                        msgObj.messages?.push(`Dòng: ${i + 1} ${errMsgStr}`);
-                        continue;
-                    }
+                    // validate Division imperatively using 'class-validator', all of Validator in division entity do not query in db don't worry about await in this for loop
+                    const checkIsValid = async () => {
+                        const errors = await validate(div, { stopAtFirstError: true });
+                        if (errors.length > 0) {
+                            const errMsgStr = errors.map(error => Object.values(error.constraints as { [type: string]: string; })).join(', ');
+                            msgObj.messages?.push(`Dòng: ${i + 1} ${errMsgStr}`);
+                            isValid = false;
+                        }
+                        if (errors.length === 0) {
+                            if (!dbData.some((data) => data['User ID'] === row['Division Leader'])) {
+                                msgObj.messages?.push(`Dòng: ${i + 1} ${messages.ECL094('Division Leader')}`);
+                                isValid = false;
+                            }
+                        }
+                    };
                     console.log('Reading csv row: ', i);
-                    // + Trường hợp id rỗng => thêm mới user
-                    if (_.isNil(row['id']) || row['id'] === '') {
-                        // if (row['Delete'] === 'Y') {
-                        //     // Delete="Y" và colum id không có nhập thì không làm gì hết, ngược lại sẽ xóa row theo id tương ứng dưới DB trong bảng user
-                        //     continue;
-                        // }
+
+                    // case: Division Leader not exist in db, table user.id
+                    // check if 'Division Leader' in CSV exist in db (table user.id) cuz there're no foreign key constraint => check manually
+
+                    // Case: empty or null id? => insert division
+                    if (_.isNil(row['ID']) || row['ID'] === '') {
+                        await checkIsValid();
                         div.created_date = new Date();
                         div.updated_date = new Date();
-                        dbData.push(div); // push to dbData to check unique later
                         insertArr.push(div); // push to map to insert later
                     } else {
-                        // Trường hợp id có trong db (chứ ko phải trong transaction) => chỉnh sửa user nếu deleted != 'Y'
-                        const findUser = _.find(dbData, { id: div.id });
+                        // Case: Division Id exist in db (not in transaction) and 'Delete' !== 'Y'
+                        const findUser = _.find(dbData, { "Div ID": row['ID'] });
                         if (findUser) {
                             if (row['Delete'] === 'Y') {
-                                dbData.splice(dbData.indexOf(findUser), 1); // remove from dbData to check unique later
-                                deleteArr.push(findUser); // push to map to delete later
+                                // dbData.splice(dbData.indexOf(findUser), 1); // remove from dbData to check unique later
+                                deleteArr.push(div); // push to map to delete later
                             } else {
+                                await checkIsValid();
+                                // dbData.splice(dbData.indexOf(div as Division), 1, div as Division);
                                 div.updated_date = new Date();
                                 updateArr.push(div); // push to map to update later
                             }
                         } else {
-                            // Trường hợp id không có trong db => hiển thị lỗi "id not exist"
-                            msgObj.messages?.push(`Dòng: ${i + 1} ${messages.ECL050}`);
+                            // Case: division id not exist in db
+                            isValid = false;
+                            // if (!isValid) continue;
+                            msgObj.messages?.push(`Dòng: ${i + 1} ID${messages.ECL050}`);
                         }
                     }
                 }
@@ -143,7 +163,10 @@ class DivisionApiController {
 
             // delete, update, insert - START
             await Promise.all(
-                deleteArr.map(async div => { await queryRunner.manager.remove<Division>(div); }),
+                // remove<Division>(div); 
+                deleteArr.map(async div => {
+                    const shit = await queryRunner.manager.softDelete(Division, { id: div.id });
+                }),
             );
             await Promise.all(
                 updateArr.map(async div => { await this.divService.updateData(div, dbData, queryRunner); }),
@@ -154,7 +177,7 @@ class DivisionApiController {
             // delete, update, insert - END
 
             // check if msgObj is not empty => meaning has errors => return BadRequest 400
-            if (msgObj?.messages && msgObj.messages?.length > 0) {
+            if (!isValid) {
                 end();
                 msgObj.status = 400;
                 await queryRunner.rollbackTransaction();
@@ -162,10 +185,10 @@ class DivisionApiController {
             } else {
                 end();
                 await queryRunner.commitTransaction();
-                return res.status(200).json({ message: messages.ECL092, status: 200, data: records });
+                return res.status(200).json({ message: messages.ECL092, status: 200, data: csvResult.data });
             }
         } catch (error) {
-            return res.status(500).json({ messages: messages.ECL098, status: 500 });
+            return res.status(500).json({ message: messages.ECL098, status: 500 });
         } finally {
             await queryRunner.release();
         }

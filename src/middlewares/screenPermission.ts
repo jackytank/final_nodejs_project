@@ -83,8 +83,8 @@ function allow(options: {
     };
 }
 
-export const allowOnlyGeDi = (options: { resAsApi: boolean; }) => {
-    return allow({ posArr: [POS_NUM.GE_DI], resAsApi: options.resAsApi });
+export const allowOnlyGeDi = (options: { resAsApi: boolean, redirUrl?: string;  }) => {
+    return allow({ posArr: [POS_NUM.GE_DI], resAsApi: options.resAsApi, redirUrl: options.redirUrl });
 };
 
 export const allowGeDiExceptParams = (options: { resAsApi: boolean, redirUrl?: string; }) => {

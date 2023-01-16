@@ -28,5 +28,7 @@ CREATE TABLE if not exists `division` (
   PRIMARY KEY (`id`)
 );
 
-alter table `division`
-add constraint `FK_division_user` foreign key(division_leader_id) references user(id);
+-- alter table `division`
+-- add constraint `FK_division_user` foreign key(division_leader_id) references user(id);
+
+-- alter table `division` drop foreign key `FK_division_user`

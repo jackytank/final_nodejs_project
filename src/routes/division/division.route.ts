@@ -5,6 +5,6 @@ import { allowOnlyGeDi } from '../../middlewares/screenPermission';
 const divisionRouter = express.Router();
 
 // base path: /admin/divisions/
-divisionRouter.get('/list', allowOnlyGeDi({ resAsApi: false }), divisionController.listPage);
+divisionRouter.get('/list', allowOnlyGeDi({ resAsApi: false, redirUrl: '/logout' }), divisionController.listPage);
 
 export default divisionRouter;

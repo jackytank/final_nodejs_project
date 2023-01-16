@@ -2,6 +2,7 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from "class-validator";
 import _ from "lodash";
 import eastasianwidth from "../../../utils/eastasianwidth";
+
 // message: messages.ECL010('Division Leader')
 
 /**
@@ -36,12 +37,13 @@ export function CustomIsStringNumber(validationOptions: ValidationOptions){
             constraints: [],
             options: validationOptions,
             validator: {
-                validate(value: any, args: ValidationArguments) {
-                    if(isNaN(_.toNumber(value))){
+                validate(value: unknown, args: ValidationArguments) {
+                    const parsedVal = +(value as string) // convert string to number
+                    if(isNaN(parsedVal) || parsedVal < 0){
                         // if return NaN meaning can't convert to number
                         return false;
                     }
-                    return false;
+                    return true;
                 },
             }
         })

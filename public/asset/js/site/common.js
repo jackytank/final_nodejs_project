@@ -40,6 +40,12 @@ const messages = {
   ECL021: 'ファイル形式が誤っています。CSVを選択してください。',
   ECL023: 'パスワードは半角英数字記号で8～20文字で入力してください。',
   ECL030: '確認用のパスワードが間違っています。',
+  ECL033: (fileFormat) => {
+    return `ファイル形式が誤っています。${fileFormat + ""}を選択してください。`;
+  },
+  ECL034: (fileSize) => {
+    return `ファイルのサイズ制限${fileSize + ""}を超えています。`;
+  },
   ECL069: (field) => {
     return `入力値が正しくありません。${field}Fromより${field}Toが大きくなるよう入力してください。`;
   },
@@ -661,18 +667,16 @@ const openErrorModalWithMsg = (modalId, modalMsgId, modalOkBtnId, status, messag
   let _msg = ``;
   if (message) {
     _msg = `
-              <h3>${''}</h3>
-              <p>${message}</p>
-           `;
+        <h3>${''}</h3>
+        <p>${message ?? ''}</p>`;
   }
 
   if (messages) {
     _msg = `
-              <h3>${''}</h3>
-              <ul class="text-center">
-                  ${messages.reduce((acc, curVal) => { return acc + `<li class="row">${curVal}</li>`; }, '')}
-              </ul>
-          `;
+         <h3>${''}</h3>
+         <ul class="text-center">
+        ${Array.isArray(messages) ? messages.reduce((acc, curVal) => { return acc + `<li class="row">${curVal}</li>`; }, '') : (messages ?? '')}
+        </ul>`;
   }
   errorModalBodyEl.innerHTML = _msg;
   const modal = new bootstrap.Modal(errorModalEl, {});

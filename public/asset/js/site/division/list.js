@@ -150,42 +150,62 @@ $(function () {
     }
     function formValidation() {
         // add validate methods - START
-        $.validator.addMethod('isValidCsvFile',
-            function (value, el) {
-                // const fileSize = element.size / 1024 / 1024 // in megabytes - mb
-                // iSize = (Math.round(iSize * 100) / 100)
-                const file = el.files[0];
-                const fileSize = file.size; // in bytes
-                const fileExt = file.name.substring(file.name.lastIndexOf('.') + 1, file.name.length) || file.name; // ex: csv | txt | docx | doc
-                console.log('file ext', fileExt);
-                console.log('file size: ', fileSize);
-                // check if file size is bigger than 2mb (in bytes)
-                if (fileSize > 2097152) {
-                    return false;
-                }
-                if (fileExt !== 'csv') {
-                    return false;
-                }
-                return true;
-            },
-            '',
-        );
+        // $.validator.addMethod('isValidFormatCsv', function (value, el) {
+        //     const file = el.files[0];
+        //     const fileExt = file.name.substring(file.name.lastIndexOf('.') + 1, file.name.length) || file.name; // ex: csv | txt | docx | doc
+        //     if (fileExt !== 'csv') {
+        //         return false;
+        //     }
+        //     return true;
+        // });
 
-        importCsvFormEl.validate({
-            rules: {
-                file: {
-                    required: true,
-                    isValidCsvFile: true,
-                },
-            },
-            messages: {
-                file: '',
-            },
-        });
+        // $.validator.addMethod('isCsvFileRightMbSize', function (val, el, params) {
+        //     // const fileSize = element.size / 1024 / 1024 // in megabytes - mb
+        //     // iSize = (Math.round(iSize * 100) / 100)
+        //     const file = el.files[0];
+        //     const fileSize = file.size; // in bytes
+        //     const inMb = params.size * 1024 * 1024; // in bytes
+        //     // check if file size is bigger than 2mb (in bytes)
+        //     if (fileSize > inMb) {
+        //         return false;
+        //     }
+        //     return true;
+        // });
+
+        // importCsvFormEl.validate({
+        //     rules: {
+        //         file: {
+        //             // required: true,
+        //             isValidFormatCsv: true,
+        //             isCsvFileRightMbSize: { size: 2 }
+        //         },
+        //     },
+        //     messages: {
+        //         file: {
+        //             // required: '',
+        //             isValidFormatCsv: messages.ECL033('CSV'),
+        //             isCsvFileRightMbSize: messages.ECL034('2 MB')
+        //         }
+        //     },
+        // });
+        checkFormThenReturnMsgErr = () => {
+            const files = importCsvInputEl.prop('files');
+            const file = files[0];
+            const inMb = 2 * 1024 * 1024; // 2mb in bytes
+            const fileExt = file.name.substring(file.name.lastIndexOf('.') + 1, file.name.length) || file.name; // ex: csv | txt | docx | doc
+            if (fileExt !== 'csv') {
+                return messages.ECL033('CSV');
+            }
+            if (file.size > inMb) {
+                return messages.ECL034('2 MB');
+            }
+            return null;
+        };
     }
     function events() {
         $(document).on('change', importCsvInputEl, function () {
-            if (importCsvFormEl.valid()) {
+            const validateMsgErr = checkFormThenReturnMsgErr(); // null || string
+            if (!validateMsgErr) {
                 const files = importCsvInputEl.prop('files');
                 const file = files[0];
                 const formData = new FormData();
@@ -204,14 +224,14 @@ $(function () {
                         // console.log('Return data: ', JSON.stringify(data, null, 4));
                     },
                     error: function (req, stat, err) {
-                        openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', req.status || req.responseJSON.status, req.responseJSON.message, req.responseJSON.messages, false
-                        );
+                        console.log(req);
+                        openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', req.status || req.responseJSON.status, req.responseJSON.message, req.responseJSON.messages, false);
                     },
                 });
-                document.querySelector('#importCsvForm').reset();
             } else {
-                openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', null, 'Please select a valid .csv file and no bigger than 2mb!', null, false);
+                openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', null, validateMsgErr, null, false);
             }
+            document.querySelector(importCsvFormIdStr).reset();
         });
     }
 });

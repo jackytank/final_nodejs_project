@@ -13,10 +13,10 @@ export class DivisionService {
     private divRepo = AppDataSource.getRepository(Division);
 
     /**
- * it will get QueryBuilder from getSearchQueryBuilder function and then it will get data from database based on query 
- * @param query accept query object
- * @returns return CustomDataTableResult with draw, recordsTotal, recordsFiltered, and data mainly for dataTable in frontend, data is array of User entity plus company_name column
- */
+     * it will get QueryBuilder from getSearchQueryBuilder function and then it will get data from database based on query 
+     * @param query accept query object
+     * @returns return CustomDataTableResult with draw, recordsTotal, recordsFiltered, and data mainly for dataTable in frontend, data is array of User entity plus company_name column
+     */
     async searchData(query: Record<string, unknown>): Promise<CustomDataTableResult> {
         const builder = await this.getSearchQueryBuilder(query, true);
         let data: string | Division[];
@@ -65,28 +65,36 @@ export class DivisionService {
      * @param parser accept csv.Parser type
      * @returns return an array of unknown object
      */
-    async readCsvData(filePath: string, parser: csv.Parser): Promise<unknown[]> {
-        const result: unknown[] = [];
-        return await new Promise((resolve, reject) =>
-            fs.createReadStream(filePath)
-                .pipe(parser)
-                .on('data', row => {
-                    result.push(row);
-                })
-                .on('error', err => {
-                    reject(err);
-                })
-                .on('end', () => {
-                    // delete CSV file after done 
-                    fs.unlink(filePath, err => {
-                        if (err) {
-                            console.error(err);
-                            return;
-                        }
-                    });
-                    resolve(result);
-                }),
-        );
+    async readCsvData(filePath: string, parser: csv.Parser): Promise<{ data: unknown[], status: number; }> {
+        const result: { data: unknown[], status: number; } = {
+            data: [], status: 500
+        };
+        try {
+            await new Promise((resolve, reject) =>
+                fs.createReadStream(filePath)
+                    .pipe(parser)
+                    .on('data', row => {
+                        result.data.push(row);
+                    })
+                    .on('error', err => {
+                        reject(err);
+                    })
+                    .on('end', () => {
+                        // xóa file csv sau khi đã đọc xong
+                        fs.unlink(filePath, err => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                        });
+                        result.status = 200;
+                        resolve(result);
+                    }),
+            );
+            return result;
+        } catch (error) {
+            return result;
+        }
     }
 
     /**
