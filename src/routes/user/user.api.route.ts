@@ -17,5 +17,7 @@ userApiRouter.delete('/:id', allowOnlyGeDi({ resAsApi: true }), UserApiControlle
 // userApiRouter.post('/csv/import', uploadFile.single('file'), UserApiController.importCsv);
 userApiRouter.get('/csv/export', allowOnlyGeDi({ resAsApi: true }), UserApiController.exportCsv);
 userApiRouter.post('/csv/export', allowOnlyGeDi({ resAsApi: true }), UserApiController.exportCsv);
+userApiRouter.get('/pdf/export', allowOnlyGeDi({ resAsApi: true }), UserApiController.exportPdf);
+userApiRouter.post('/pdf/export', allowOnlyGeDi({ resAsApi: true }), UserApiController.exportPdf);
 
 export default userApiRouter;

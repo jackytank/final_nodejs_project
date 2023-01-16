@@ -31,7 +31,7 @@ class UserApiController {
         this.update = this.update.bind(this);
         this.remove = this.remove.bind(this);
         this.importCsv = this.importCsv.bind(this);
-        this.exportCsv = this.exportCsv.bind(this);
+        this.exportPdf = this.exportPdf.bind(this);
     }
 
     //for routing control purposes - START
@@ -302,18 +302,7 @@ class UserApiController {
             }
             start();
             userList.map((user: CustomUserData) => {
-                // user['Created Date'] = (user['Created Date'] as string).replace('/', '-');
-                // user['Updated Date'] = (user['Updated Date'] as string).replace('/', '-');
-                const a = user['Entered Date'];
-                const b = dayjs(user['Entered Date'], { utc: true }).format();
-                const c = dayjs(user['Entered Date']).format();
-                const f = dayjs(user['Entered Date']).format('YYYY-MM-DD');
-                const d = dayjs.utc(user['Entered Date']).format();
-                const e = dayjs.utc(user['Entered Date']).format('YYYY-MM-DD');
-                const x = dayjs(user['Entered Date']).format();
-                const _new = f.slice(0, 10);
-
-                // turn utc true because 2022-01-01 will turn to 2021-12-31 if utc is false... weird AF
+                // turn utc true because 2022-01-01 will turn to 2021-12-31 if utc is false and timezone in DataSource other than +00:00... weird AF
                 user['Entered Date'] = dayjs(user['Entered Date'], { utc: true }).format('YYYY-MM-DD');
                 user['Created Date'] = dayjs(user['Created Date'], { utc: true }).format('YYYY-MM-DD');
                 user['Updated Date'] = dayjs(user['Updated Date'], { utc: true }).format('YYYY-MM-DD');
@@ -350,6 +339,43 @@ class UserApiController {
                     return res.status(200).json({ data: data, status: 200, message: `Export to CSV success!, \nTotal records: ${userList.length}`, filename: filename });
                 }
             });
+        } catch (error) {
+            return res.status(500).json({ message: messages.ECL097, status: 500 });
+        }
+    }
+
+    async exportPdf(req: Request, res: Response) {
+        try {
+            const { start, end } = bench();
+            const query = req.session.searchQuery;
+            if (!query || query?.draw === '1') {
+                return res.status(400).json({ message: messages.ECL097, status: 400 });
+            }
+            const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(query as Record<string, unknown>, false); // set false to turn off offset,limit search criteria
+            const userList: CustomUserData[] = await builder.getRawMany();
+            // if list is empty then return 404
+            // userList = [];
+            if (userList.length === 0) {
+                return res.status(404).json({ message: messages.ECL097, status: 404 });
+            }
+            start();
+            userList.map((user: CustomUserData) => {
+                // turn utc true because 2022-01-01 will turn to 2021-12-31 if utc is false and timezone in DataSource other than +00:00... weird AF
+                user['Entered Date'] = dayjs(user['Entered Date'], { utc: true }).format('YYYY-MM-DD');
+                user['Created Date'] = dayjs(user['Created Date'], { utc: true }).format('YYYY-MM-DD');
+                user['Updated Date'] = dayjs(user['Updated Date'], { utc: true }).format('YYYY-MM-DD');
+
+                switch (user['Position'] as number | undefined) {
+                    case 0: user['Position'] = POS_NAME.GE_DI; break;
+                    case 1: user['Position'] = POS_NAME.GR_LE; break;
+                    case 2: user['Position'] = POS_NAME.LE; break;
+                    case 3: user['Position'] = POS_NAME.MEM; break;
+                    default: user['Position'] = ''; break;
+                }
+            });
+
+            
+
         } catch (error) {
             return res.status(500).json({ message: messages.ECL097, status: 500 });
         }
