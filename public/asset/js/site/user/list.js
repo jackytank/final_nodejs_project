@@ -15,7 +15,6 @@ $(function () {
     function init() {
         // if don't specify the scope (let, const) the variable will be global
         searchFormIdStr = '#searchForm';
-        exportPdfBtnIdStr = '#exportPdfBtn'
         searchForm = $(searchFormIdStr);
         usersTableElement = $('#usersTable');
         searchBtn = $('#searchBtn');
@@ -24,8 +23,8 @@ $(function () {
         // for import, export csv
         importCsvFormEl = $('#importCsvForm');
         importCsvInputEl = $('#importCsvInput');
+        importCsvBtnEl = $('#importCsvBtn');
         exportCsvBtnEl = $('#exportCsvBtn');
-        exportPdfBtnEl = $(exportPdfBtnIdStr);
         importCsvFileSizeEl = $('#fileSize');
 
         usernameInputStr = 'name';
@@ -376,31 +375,6 @@ $(function () {
                     a.remove();
                     // console.log(res.message);
                     // openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', res.status || 200, res.message, null, false);
-                },
-                error: function (req, stat, err) {
-                    console.log(stat, err);
-                    openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', req.responseJSON.status, req.responseJSON.message, null, false);
-                },
-            });
-        });
-
-        $(document).on('click', exportPdfBtnIdStr, function () {
-            $.ajax({
-                method: 'POST',
-                url: '/api/admin/users/pdf/export',
-                cache: false,
-                success: function (res) {
-                    const blob = new Blob([res.data], {
-                        type: 'text/pdf;',
-                    });
-                    const url = window.URL || window.webkitURL;
-                    const link = url.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.download = res.filename;
-                    a.href = link;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
                 },
                 error: function (req, stat, err) {
                     console.log(stat, err);

@@ -56,12 +56,12 @@
             <!-- end table  -->
 
             <!-- output csv, new btn - START -->
-            <% if (loginUser.position_id===0) { %>
-                <div class="mb-3 d-flex flex-row">
-                    <div class="me-2">
-                        <a class="btn btn-outline-secondary" href="/admin/users/addPage">New</a>
-                    </div>
-                    <!-- <div class="col-md-4">
+            <% if (loginUser.position_id === 0) { %>
+            <div class="mb-3 d-flex flex-row">
+                <div class="me-2">
+                    <a class="btn btn-outline-secondary" href="/admin/users/addPage">New</a>
+                </div>
+                <!-- <div class="col-md-4">
 						<form id="importCsvForm">
 							<div class="input-group">
 								<input type="file" class="form-control" name="file" id="importCsvInput">
@@ -69,15 +69,13 @@
 							</div>
 						</form>
 					</div> -->
-                    <div class="me-2">
-                        <button type="button" class="btn btn-outline-secondary" id="exportCsvBtn">Output CSV</button>
-                    </div>
-                    <div class="me-2">
-                        <button type="button" class="btn btn-outline-secondary" id="exportPdfBtn">Output Pdf</button>
-                    </div>
+                <div class="me-2">
+                    <button type="button" class="btn btn-outline-secondary" id="exportCsvBtn">Output CSV</button>
+                    <a hidden id="downloadTag"></a>
                 </div>
-                <% } %>
-                    <!-- output csv, new btn - END -->
+            </div>
+            <% } %>
+            <!-- output csv, new btn - END -->
         </div>
     </div>
 </div>
@@ -85,4 +83,4 @@
 <script src="/asset/js/site/user/list.js"></script>
 
 <%- contentFor('pageTitle') %>
-    User List
+User List
