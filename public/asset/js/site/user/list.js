@@ -16,6 +16,7 @@ $(function () {
         // if don't specify the scope (let, const) the variable will be global
         searchFormIdStr = '#searchForm';
         searchForm = $(searchFormIdStr);
+        exportPdfBtnIdStr = '#exportPdfBtn';
         usersTableElement = $('#usersTable');
         searchBtn = $('#searchBtn');
         getUserPosition = parseInt(document.querySelector('#user-position')?.dataset?.userPosition); // get user position attribute in defaultHeader.ejs (data-user-position="")
@@ -26,6 +27,7 @@ $(function () {
         importCsvBtnEl = $('#importCsvBtn');
         exportCsvBtnEl = $('#exportCsvBtn');
         importCsvFileSizeEl = $('#fileSize');
+        exportPdfBtnEl = $(exportPdfBtnIdStr);
 
         usernameInputStr = 'name';
         enteredDateFromStr = 'enteredDateFrom';
@@ -381,6 +383,44 @@ $(function () {
                     openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', req.responseJSON.status, req.responseJSON.message, null, false);
                 },
             });
+        });
+
+        $(document).on('click', exportPdfBtnIdStr, function () {
+            (async () => {
+                let filename = 'list.pdf';
+                const res = await fetch('/api/admin/users/pdf/export', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/pdf' },
+                });
+                console.log('res: ', res);
+                if (!res.ok) {
+                    // use clone() to store in difference variable to avoid already consume res error
+                    // get json response { "message", "status" } from server
+                    const resJson = await res.clone().json();
+                    console.log('ResJson: ', resJson);
+                    openErrorModalWithMsg('errorModal', 'errorModalMessage', 'errorModalOkBtn', null, resJson.message, null, false);
+                } else {
+                    // Ex: 'Content-Disposition': 'attachment; filename=' + filename
+                    const headers = res.headers.get('Content-Disposition');
+                    if (headers) {
+                        const parts = headers.split(';');
+                        filename = parts[1].split('=')[1];
+                    }
+                    const data = await res.blob();
+                    const blob = new Blob([data], {
+                        type: 'application/pdf;',
+                    });
+                    const url = window.URL || window.webkitURL;
+                    const link = url.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.download = filename;
+                    a.href = link;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                }
+            })();
+
         });
     }
 });
