@@ -1,5 +1,5 @@
 import { messages, POS_NAME } from '../../../constants';
-import { CustomDataTableResult, CustomUserData } from '../../../customTypings/express/index';
+import { CustomDataTableResult, CustomUserData, Data } from '../../../customTypings/express/index';
 import { Request, Response } from 'express';
 import _ from 'lodash';
 import * as csv from 'csv-parse';
@@ -12,8 +12,7 @@ import utc from 'dayjs/plugin/utc';
 import { UserService } from '../../../services/user/user.service';
 import { CustomEntityApiResult, CustomValidateResult, } from '../../../customTypings/express';
 import { User } from '../../../entities/user.entity';
-import { bench, getRandomPassword, isAllElementDup, isHasDup, isValidDate } from '../../../utils/common';
-import { UserModel } from '../../../models/user.model';
+import { bench, getRandomPassword, isHasDup } from '../../../utils/common';
 import { AppDataSource } from '../../../DataSource';
 import { _1MB } from '../../../constants';
 
@@ -30,7 +29,7 @@ class UserApiController {
         this.save = this.save.bind(this);
         this.update = this.update.bind(this);
         this.remove = this.remove.bind(this);
-        this.importCsv = this.importCsv.bind(this);
+        // this.importCsv = this.importCsv.bind(this);
         this.exportCsv = this.exportCsv.bind(this);
     }
 
@@ -67,13 +66,14 @@ class UserApiController {
                 return res.status(200).json(result);
             }
             return res.status(200).json({});
-            // data = await this.userService.searchData(req.query);
-            // return res.status(200).json(data);
         } catch (error) {
             return res.status(500).json({ message: messages.ECL098, status: 500 });
         }
     }
 
+    /**
+     * This func is just a double-check, MySQL ORDER BY is already sort name alphabetically and sort by id asc if has duplicates
+     */
     async sortAscWith2PointerBy(arr: CustomUserData[]) {
         const tmpArr = arr;
         const lgth = arr.length;
@@ -104,7 +104,7 @@ class UserApiController {
         try {
             const result: CustomEntityApiResult<User> = await this.userService.insertData(user, null, queryRunner, { checkUniqueMail: true, isPasswordHash: true });
             if (result.status !== 200) {
-                return res.status(result.status as number).json({ status: result.status, message: result.message ?? messages.ECL093 });
+                return res.status(result.status as number).json({ status: result.status, message: messages.ECL093 });
             }
             await queryRunner.commitTransaction();
             return res.status(200).json({ status: 200, message: result.message ?? messages.ECL096 });
@@ -129,7 +129,7 @@ class UserApiController {
         try {
             const result = await this.userService.updateData(user, null, queryRunner, { checkUniqueMail: true, });
             if (result.status !== 200) {
-                return res.status(result.status as number).json({ status: result.status, message: result.message ?? messages.ECL093 });
+                return res.status(result.status as number).json({ status: result.status, message: messages.ECL093 });
             }
             await queryRunner.commitTransaction();
             return res.status(200).json({ status: 200, message: result.message ?? messages.ECL096 });
@@ -141,13 +141,20 @@ class UserApiController {
         }
     }
     async remove(req: Request, res: Response) {
-        const id = parseInt(req.params.id);
-        const loginUserId = req.session.user?.id ?? req.user?.id;
-        if (loginUserId === id) {
-            return res.status(400).json({ message: messages.ECL086 });
-        } else {
-            const result: CustomEntityApiResult<User> = await this.userService.removeData(id);
-            return res.status(result.status as number).json(result);
+        try {
+            const id = parseInt(req.params.id);
+            const loginUserId = req.session.user?.id ?? req.user?.id;
+            if (loginUserId === id) {
+                return res.status(400).json({ message: messages.ECL086 });
+            } else {
+                const result: CustomEntityApiResult<User> = await this.userService.removeData(id);
+                if (result.status !== 200) {
+                    return res.status(result.status as number).json({ status: result.status, message: messages.ECL093 });
+                }
+                return res.status(result.status as number).json(result);
+            }
+        } catch (error) {
+            return res.status(500).json({ status: 500, message: messages.ECL093 });
         }
     }
 
@@ -302,18 +309,8 @@ class UserApiController {
             }
             start();
             userList.map((user: CustomUserData) => {
-                // user['Created Date'] = (user['Created Date'] as string).replace('/', '-');
-                // user['Updated Date'] = (user['Updated Date'] as string).replace('/', '-');
-                const a = user['Entered Date'];
-                const b = dayjs(user['Entered Date'], { utc: true }).format();
-                const c = dayjs(user['Entered Date']).format();
-                const f = dayjs(user['Entered Date']).format('YYYY-MM-DD');
-                const d = dayjs.utc(user['Entered Date']).format();
-                const e = dayjs.utc(user['Entered Date']).format('YYYY-MM-DD');
-                const x = dayjs(user['Entered Date']).format();
-                const _new = f.slice(0, 10);
-
-                // turn utc true because 2022-01-01 will turn to 2021-12-31 if utc is false... weird AF
+                // turn utc true because 2022-01-01 will turn to 2021-12-31 if utc is false and DataSource timzone is other than +00:00... weird AF
+                // Cuz dayjs use local timezone so we need to explicily turn utc to true (UTC extend config is above)
                 user['Entered Date'] = dayjs(user['Entered Date'], { utc: true }).format('YYYY-MM-DD');
                 user['Created Date'] = dayjs(user['Created Date'], { utc: true }).format('YYYY-MM-DD');
                 user['Updated Date'] = dayjs(user['Updated Date'], { utc: true }).format('YYYY-MM-DD');

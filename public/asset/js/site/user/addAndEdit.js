@@ -47,6 +47,7 @@ $(function () {
             const renderedUserPosition = selectPosition.data('userPositionId'); // data-user-position-id="23232"
             const renderedUserDivision = selectDivision.data('userDivisionId'); // data-user-division-id="23232"
             // call api then populate the data to select devision
+            selectDivision.append(`<option value="" ></option>`);
             fetch('/api/admin/divisions')
                 .then((res) => res.json())
                 .then((data) => {
@@ -55,6 +56,7 @@ $(function () {
                     });
                 });
             // POS_ARR is in site/constant.js
+            selectPosition.append(`<option value="" ></option>`);
             POS_ARR.forEach((div) => {
                 // when server render ejs <select> tag will have data-user-position-id, set <option> selected if div.id equal to that id
                 selectPosition.append(`<option value="${div.id}" ${div.id === renderedUserPosition ? 'selected' : ''}>${div.name}</option>`);

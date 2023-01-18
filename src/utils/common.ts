@@ -144,6 +144,9 @@ export const bench = () => {
 
 export const setAllNull = (obj: Record<string, unknown>, ifEl?: { isEmpty: boolean; }) => {
     const result = obj;
+    if (result == null) {
+        return result;
+    }
     Object.keys(result).forEach(key => {
         if (ifEl && ifEl.isEmpty && result[key] === '') {
             result[key] = null;

@@ -36,6 +36,7 @@ export const valueLst = {
 export const messages = {
     CSVDefault: 'Please note that an error will occur if there is unnecessary data or rewriting of item names in the header of the format.',
     FORBIDDEN: `Forbidden, access denied.`,
+    UNAUTHORIZE_ACCESS_JP: 'アクセス権限がありません。',
     INTERNAL_SERVER_ERROR: `I'm sorry. <br/> The page you were trying to access could not be found. <br/>
     The URL may have changed due to site updates, or the URL may not have been entered correctly. <br/>
     If this page is still displayed after reloading the browser, please contact your system administrator.`,
