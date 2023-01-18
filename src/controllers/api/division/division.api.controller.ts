@@ -120,8 +120,10 @@ class DivisionApiController {
                     const checkIsValid = async () => {
                         const errors = await validate(div, { stopAtFirstError: true });
                         if (errors.length > 0) {
-                            const errMsgStr = errors.map(error => Object.values(error.constraints as { [type: string]: string; })).join(', ');
-                            msgObj.messages?.push(`Dòng: ${i + 1} ${errMsgStr}`);
+                            const errMsgList = errors.map(error => Object.values(error.constraints as { [type: string]: string; }));
+                            errMsgList.forEach((msg) => {
+                                msgObj.messages?.push(`Dòng: ${i + 1} ${msg}`);
+                            });
                             isValid = false;
                         }
                         if (errors.length === 0) {
@@ -159,7 +161,7 @@ class DivisionApiController {
                             // Case: division id not exist in db
                             isValid = false;
                             // if (!isValid) continue;
-                            msgObj.messages?.push(`Dòng: ${i + 1} ID${messages.ECL050}`);
+                            msgObj.messages?.push(`Dòng: ${i + 1} ${messages.ECL050}`);
                         }
                     }
                 }
