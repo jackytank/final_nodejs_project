@@ -32,6 +32,10 @@ export class UserService {
         await this.userRepo.update(foundUser.id, foundUser);
         return foundUser;
     }
+
+    async verifyCredentialsWithJWT(email: string, password: string){
+        null
+    }
     /**
      * @param filePath accept absolute path
      * @param parser accept csv.Parser type

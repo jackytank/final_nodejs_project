@@ -11,15 +11,17 @@ import userRouter from './user/user.route';
 import divisionRouter from './division/division.route';
 import userApiRouter from './user/user.api.route';
 import { noCache } from '../middlewares/noCache';
-import { authentication } from '../middlewares/authentication';
+import passport from 'passport';
+import jwt from 'jsonwebtoken';
+import { authentication, authentication_jwt } from '../middlewares/authentication';
 import divisionApiRouter from './division/division.api.route';
 const router = Router();
 
-router.use(sessionMiddleWare);
+// router.use(sessionMiddleWare);
 router.use(userMiddleware);
 router.use(noCache); // disable cache to prevent back button issue after logout
 router.use('/', authRouter);
-router.use(authentication);
+router.use(authentication_jwt);
 router.use(viewHelper);
 
 router.get('/', (req, res) => {

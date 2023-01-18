@@ -2,6 +2,7 @@ import { CustomUserData } from './../customTypings/express/index';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import moment from 'moment-timezone';
 import Big from 'big.js';
+import crypto from 'crypto';
 import _ from 'lodash';
 import { generate } from 'generate-password';
 
@@ -198,6 +199,30 @@ export const isHasDup = (a: unknown[]) => {
 export const isAllElementDup = (a: unknown[]) => {
     const setA = new Set(a.map((item: CustomUserData) => item['User Name']));
     return setA.size === 1;
+};
+
+export type HashedData = {
+    iv: string,
+    content: string;
+};
+
+export const encrypt_aes_256 = (text: string): HashedData => {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-ccm', process.env.ENCRYPTION_SECRET as string, iv);
+    const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+    return {
+        iv: iv.toString('hex'),
+        content: encrypted.toString('hex')
+    };
+};
+
+export const decrypt_aes_256 = (hash: HashedData) => {
+    if (hash) {
+        const decipher = crypto.createDecipheriv('aes-256-ccm', process.env.ENCRYPTION_SECRET as string, Buffer.from(hash?.iv, 'hex'));
+        const decrypted = Buffer.concat([decipher.update(Buffer.from(hash?.content, 'hex')), decipher.final()]);
+        return decrypted.toString();
+    }
+    return undefined;
 };
 
 

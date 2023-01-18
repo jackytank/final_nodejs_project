@@ -40,7 +40,7 @@ app.use(session({
         maxAge: 3600000,
     }
 }));
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.static(`${__dirname}/../public`));
 app.use(router);
 app.use(errorHandler);
