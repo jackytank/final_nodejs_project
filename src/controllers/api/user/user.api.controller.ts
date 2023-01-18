@@ -3,12 +3,10 @@ import { CustomDataTableResult, CustomUserData, Data } from '../../../customTypi
 import { Request, Response } from 'express';
 import _ from 'lodash';
 import * as csv from 'csv-parse';
-import PDFDocument from 'pdfkit-table';
 import { SelectQueryBuilder, } from 'typeorm';
 import { validate, ValidationError } from 'class-validator';
 import { stringify } from 'csv-stringify';
 import validator from 'validator';
-import puppeteer from 'puppeteer';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { UserService } from '../../../services/user/user.service';
@@ -33,8 +31,6 @@ class UserApiController {
         this.remove = this.remove.bind(this);
         // this.importCsv = this.importCsv.bind(this);
         this.exportCsv = this.exportCsv.bind(this);
-        this.exportPdf = this.exportPdf.bind(this);
-        this.exportPdfPup = this.exportPdfPup.bind(this);
     }
 
     //for routing control purposes - START
@@ -354,65 +350,6 @@ class UserApiController {
         } catch (error) {
             return res.status(500).json({ message: messages.ECL097, status: 500 });
         }
-    }
-
-
-    async exportPdf(req: Request, res: Response) {
-        const { start, end } = bench();
-        const query = req.session.searchQuery;
-        if (!query || query?.draw === '1') {
-            return res.status(400).json({ message: messages.ECL097, status: 400 });
-        }
-        const builder: SelectQueryBuilder<User> = await this.userService.getSearchQueryBuilder(query as Record<string, unknown>, false); // set false to turn off offset,limit search criteria
-        const userList: Data[] = await builder.getRawMany();
-        if (userList.length === 0) {
-            return res.status(404).json({ message: messages.ECL097, status: 404 });
-        }
-        start();
-        userList.map((user: Data) => {
-            // turn utc true because 2022-01-01 will turn to 2021-12-31 if utc is false... weird AF
-            user['Entered Date'] = dayjs(user['Entered Date'], { utc: true }).format('YYYY-MM-DD');
-            user['Created Date'] = dayjs(user['Created Date'], { utc: true }).format('YYYY-MM-DD');
-            user['Updated Date'] = dayjs(user['Updated Date'], { utc: true }).format('YYYY-MM-DD');
-
-            switch (user['Position'] as unknown as number | undefined) {
-                case 0: user['Position'] = POS_NAME.GE_DI; break;
-                case 1: user['Position'] = POS_NAME.GR_LE; break;
-                case 2: user['Position'] = POS_NAME.LE; break;
-                case 3: user['Position'] = POS_NAME.MEM; break;
-                default: user['Position'] = ''; break;
-            }
-        });
-        const filename = `list_user_${dayjs(Date.now()).format('YYYYMMDDHHmmss')}.pdf`;
-        const headers = Object.keys(userList[0]);
-        const doc = new PDFDocument({ margin: 30, size: 'A4' });
-        res.writeHead(200, {
-            'Content-Type': 'application/pdf',
-            'Access-Control-Allow-Origin': '*',
-            'Content-Disposition': 'attachment; filename=' + filename
-        });
-        doc.pipe(res);
-        // turn array of object with key-value to array of array with only value
-        const newList = userList.map((user) => {
-            return Object.values(user).map((value) => {
-                return value == null ? '' : (value.length > 30 ? `${value.slice(0, 30)}...` : value);
-            });
-        });
-        (async () => {
-            const table = {
-                title: 'User List Export',
-                headers: headers,
-                rows: newList
-            };
-            doc.table(table);
-            end(); // end benchmark
-            doc.end();
-            return;
-        })();
-    }
-
-    async exportPdfPup(req: Request, res: Response) {
-        null;
     }
     //for routing control purposes - END
 }
