@@ -28,7 +28,13 @@ class DivisionApiController {
             .where('d.deleted_date IS NULL')
             .orderBy('d.name', 'ASC')
             .getMany();
-        return res.status(200).json({ data: data });
+        const newData = data.map((div: Division) => {
+            return {
+                "id": div.id,
+                "name": div.name
+            };
+        });
+        return res.status(200).json({ data: newData });
     }
 
     async search(req: Request, res: Response) {
@@ -75,7 +81,7 @@ class DivisionApiController {
                 columns: true, // gán header cho từng column trong row
             });
             const csvResult = await this.divService.readCsvData(req.file.path, parser);
-            if(csvResult.status === 500){
+            if (csvResult.status === 500) {
                 return res.status(csvResult.status).json({ message: messages.ECL095 });
             }
             if (csvResult.data.length === 0) {

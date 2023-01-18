@@ -1,9 +1,7 @@
 /**
- * Custom definition for Express.Request
+ * Custom definition for Express.Request and other types
  */
-import { IMessage } from '../../constants';
 import { User } from '../../entities/user.entity';
-import * as models from '../../models';
 declare module 'express-session' {
     interface SessionData {
         user: User | undefined | null;
@@ -108,3 +106,7 @@ export type SearchUserListResult = {
 export type DestinationCallback = (error: Error | null, destination: string) => void;
 
 export type FileNameCallback = (error: Error | string | string[] | null, filename: string) => void;
+
+export interface Data {
+    [key: string]: string;
+}

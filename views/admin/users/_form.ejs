@@ -1,6 +1,6 @@
 <form id="addEditDeleteForm" class="" method="<%= formMethod %>" data-form-purpose="<%= formPurpose %>">
     <% 
-		const isInputDisabled = [1,2,3].includes(loginUser.position_id) ? `disabled`:``
+		const isInputDisabled = ![0].includes(loginUser.position_id) ? `disabled`:``
 		const {name, email, division_id, entered_date, position_id} = userData;
 	%>
     <div class="row">
@@ -24,13 +24,13 @@
     <div class="row">
         <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
             <div class="input-group">
-                <label class="input-group-text w-50" for="email">Email:</label>
+                <label class="input-group-text w-50" for="email">Email</label>
                 <input type="text" id="email" class="form-control" name="email" value="<%= email ?? '' %>" <%= isInputDisabled %> />
             </div>
         </div>
         <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
             <div class="input-group">
-                <label class="input-group-text w-50" for="selectDivision">Division: </label>
+                <label class="input-group-text w-50" for="selectDivision">Division</label>
                 <select data-user-division-id="<%= division_id %>" name="division_id" class="form-select" id="selectDivision" <%= isInputDisabled %>>
                     <!-- <option v-for="(item, index) in divisionsList" :key="index" :value="item.id">{{item.name}}</option> -->
                 </select>
@@ -46,7 +46,7 @@
         </div>
         <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
             <div class="input-group">
-                <label class="input-group-text w-50" for="selectPosition">Position: </label>
+                <label class="input-group-text w-50" for="selectPosition">Position</label>
                 <select data-user-position-id="<%= position_id %>" name="position_id" class="form-select" id="selectPosition" <%= isInputDisabled %>>
                     <!-- <option v-for="(item, index) in posList" :key="index" :value="item.id">{{item.name}}</option> -->
                 </select>
@@ -56,13 +56,13 @@
     <div class="row">
         <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper">
             <div class="input-group">
-                <label class="input-group-text w-50" for="password">Password:</label>
+                <label class="input-group-text w-50" for="password">Password</label>
                 <input type="password" id="password" class="form-control" name="password">
             </div>
         </div>
         <div class="col-md-6 col-sm-12 mb-4 has-error-wrapper has-error-wrapper">
             <div class="input-group">
-                <label class="input-group-text w-50" for="retype">Password Confirmation:</label>
+                <label class="input-group-text w-50" for="retype">Password Confirmation</label>
                 <input type="password" id="retype" class="form-control" name="retype">
             </div>
         </div>
@@ -81,10 +81,7 @@
     <% 
 			let isUpdateAppear = false;
 			let isDeleteAppear = false;
-			if([0].includes(loginUser.position_id)){
-				isUpdateAppear = true;
-				isDeleteAppear = true;
-			} else if([1,2,3].includes(loginUser.position_id)){
+			if([0,1,2,3].includes(loginUser.position_id)){
 				isUpdateAppear = true;
 				isDeleteAppear = true;
 			}

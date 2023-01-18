@@ -1,4 +1,4 @@
-import { POS_NUM } from '../../constants';
+import { messages, POS_NUM } from '../../constants';
 import { CustomApiResult } from '../../customTypings/express/index';
 import { Request, Response } from 'express';
 import dayjs from 'dayjs';
@@ -33,6 +33,9 @@ class AdminUserController {
         });
     }
     // POST
+    /**
+     * @Deprecated do not use this func, no longer being utilized
+     */
     async createNewUser(req: Request, res: Response) {
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
@@ -76,11 +79,14 @@ class AdminUserController {
                 user: result.data
             });
         } else {
-            req.flash("message", `Can't find user with id: ${id}`);
+            req.flash("message", messages.UNAUTHORIZE_ACCESS_JP);
             res.redirect('/admin/users/list');
         }
     }
     // POST
+    /**
+     * @Deprecated do not use this func, no longer being utilized
+     */
     async update(req: Request, res: Response) {
         const queryRunner = AppDataSource.createQueryRunner();
         await queryRunner.connect();
