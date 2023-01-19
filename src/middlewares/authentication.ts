@@ -1,4 +1,5 @@
-import { HashedData } from './../utils/common';
+import { CustomBanhQui } from './../controllers/auth.controller';
+import { HashedData, readJsonDB } from './../utils/common';
 /**
  * Authentication Middlewares
 */
@@ -6,7 +7,10 @@ import jwt from 'jsonwebtoken';
 import * as logger from '../utils/logger';
 import { UNAUTHORIZED } from 'http-status';
 import { NextFunction, Request, Response } from 'express';
-import { decrypt_aes_256 } from '../utils/common';
+import { decrypt } from '../utils/common';
+import * as configEnv from 'dotenv';
+
+configEnv.config();
 
 /**
  * If the user is not authorized, then redirect to login page
@@ -33,22 +37,28 @@ export const authentication = async (req: Request, res: Response, next: NextFunc
     }
 };
 
+export const memDB: string[] = [];
+
 export const authentication_jwt = async (req: Request, res: Response, next: NextFunction) => {
     logger.logInfo(req);
-    const hashedData = decrypt_aes_256(req.signedCookies['banhqui_antoan'] as HashedData);
-    const banhqui = hashedData == null ? null : JSON.parse(hashedData);
-    if (!banhqui?.token || !req.user?.isAuthorized) {
-        req.user = {
-            isAuthorized: false,
-        };
-        res.locals.loginUser = {};
-        res.locals.logoutRedirect = {};
+    const parsed = req.signedCookies['banhqui_antoan'] == null ? null : JSON.parse(req.signedCookies['banhqui_antoan']);
+    const hashedData = decrypt(parsed as HashedData);
+    const banhqui: CustomBanhQui = hashedData == null ? null : JSON.parse(hashedData);
+    req.user = {
+        isAuthorized: false,
+    };
+    res.locals.loginUser = {};
+    res.locals.logoutRedirect = {};
+
+    if (!banhqui?.access_token) {
         return res.status(UNAUTHORIZED).redirect(`/login?redirect=${encodeURIComponent(req.originalUrl)}`);
     }
-    jwt.verify(banhqui.token, process.env.TOKEN_SECRET as string, (err: any, user: any) => {
-        console.log(err);
+    let isATExpire = false;
+    jwt.verify(banhqui.access_token, process.env.TOKEN_SECRET as string, (err: any, user: any) => {
         if (err) {
-            return res.status(UNAUTHORIZED).json({ success: false, message: 'Unauthorized Son...!' });
+            isATExpire = true;
+            console.log('Token expire');
+            return res.status(UNAUTHORIZED).redirect(`/login?redirect=${encodeURIComponent(req.originalUrl)}`);
         }
         req.user = {
             ...banhqui.user,
@@ -57,6 +67,6 @@ export const authentication_jwt = async (req: Request, res: Response, next: Next
         res.locals = {
             loginUser: banhqui.user, logoutRedirect: encodeURIComponent(req.originalUrl),
         };
-        next();
+        return next();
     });
 };

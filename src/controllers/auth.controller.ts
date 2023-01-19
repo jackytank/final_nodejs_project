@@ -1,14 +1,18 @@
-// @ts-nocheck
+import { writeJsonDB, readJsonDB } from './../utils/common';
 /**
  * Login controller
 */
 import jwt from 'jsonwebtoken';
 import * as logger from '../utils/logger';
-import crypto from 'crypto';
 import { Request, Response } from 'express';
 import { UserService } from '../services/user/user.service';
 import { messages } from '../constants';
 import { User } from '../entities/user.entity';
+import * as configEnv from 'dotenv';
+import { encrypt } from '../utils/common';
+import { memDB } from '../middlewares/authentication';
+
+configEnv.config();
 
 /**
  * GET login
@@ -45,6 +49,8 @@ export const auth = async (req: Request, res: Response) => {
         }
         if (user) {
             // save user info into session
+            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+            // @ts-ignore
             (req.session as Express.Session).user = { ...user, };
             req.user.isAuthorized = true;
             // write log
@@ -70,12 +76,18 @@ export const auth = async (req: Request, res: Response) => {
 /**
  * This func auth_with_jwt is for research jwt purposes, use above func auth whenever possible.
  */
+export interface CustomBanhQui {
+    user: Record<string, unknown>,
+    access_token: string,
+    refresh_token: string;
+}
+
 export const auth_with_jwt = async (req: Request, res: Response) => {
     const { redirect } = req.query;
     const { email, password } = req.body;
     try {
-        const userService = new UserService();
-        const user: User | null = await userService.verifyCredentials(email, password);
+        const user_service = new UserService();
+        const user: User | null = await user_service.verifyCredentials(email, password);
         if (!user) {
             logger.logInfo(req, `Failed login attempt: username(${email || ''}, password(${password || ''})`,
             );
@@ -86,24 +98,31 @@ export const auth_with_jwt = async (req: Request, res: Response) => {
             });
         }
         if (user) {
-            const expireTime = 1800; // 30mins
-            const token = jwt.sign({ email }, process.env.TOKEN_SECRET as string, {
-                expiresIn: expireTime // 30mins
+            const access_token_expire = parseInt(process.env.TOKEN_EXPIRE as string); // 30 mins
+            const refresh_token_expire = parseInt(process.env.REFRESH_EXPIRE as string); // 15 days
+
+            // signing access and refresh tokens
+            const access_token = jwt.sign({ email }, process.env.TOKEN_SECRET as string, {
+                expiresIn: access_token_expire
             });
-            // save user info into session
+            const refresh_token = jwt.sign({ email }, process.env.REFRESH_SECRET as string, {
+                expiresIn: refresh_token_expire
+            });
+            // create object to return user, access and refresh tokens info
             req.user.isAuthorized = true;
-            const toReturn = {
+            const to_return: CustomBanhQui = {
                 user: {
                     ...(({ id, name, email, position_id }) => ({ id, name, email, position_id }))(user),
                 },
-                token: token
+                access_token: access_token,
+                refresh_token: refresh_token
             };
-            const decryptedToReturn = encrypt_aes_256(JSON.stringify(toReturn));
-            res.cookie('banhqui_antoan', decryptedToReturn, {
+            memDB.push(to_return.refresh_token);
+            const test = memDB;
+            const encrypted_to_return = encrypt(JSON.stringify(to_return));
+            res.cookie('banhqui_antoan', JSON.stringify(encrypted_to_return), {
                 secure: true,
                 httpOnly: true, // to prevent XSS attacks
-                expires: true,
-                maxAge: expireTime * 1000, // 30 mins in miliseconds
                 signed: true,
                 sameSite: 'strict'
             });
@@ -116,6 +135,7 @@ export const auth_with_jwt = async (req: Request, res: Response) => {
         }
     } catch (err) {
         // write log
+        console.log(err);
         logger.logInfo(req, `Failed login attempt: email(${email || ''})`);
         res.render('login/index', {
             layout: 'layout/loginLayout',
@@ -129,7 +149,7 @@ export const auth_with_jwt = async (req: Request, res: Response) => {
  */
 export const logout = async (req: Request, res: Response) => {
     req.user = undefined;
-    req.signedCookies['banhqui_antoan'] = undefined;
+    res.clearCookie('banhqui_antoan');
     const { redirect } = req.query;
     // write log
     logger.logInfo(req, 'User logged out successfully.');
@@ -139,3 +159,4 @@ export const logout = async (req: Request, res: Response) => {
     }
     res.redirect(redirectURL);
 };
+

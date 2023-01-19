@@ -1,0 +1,12 @@
+{
+  "tokens": {
+    "user": {
+      "id": 1164,
+      "name": "Test GE_DI",
+      "email": "admin@gmail.com",
+      "position_id": 0
+    },
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsImlhdCI6MTY3NDExODI2NSwiZXhwIjoxNjc0MTIwMDY1fQ.nzcA_s71x7hmIByooViJWhOyBOwshLIXaIQ-w63YUAc",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsImlhdCI6MTY3NDExODI2NSwiZXhwIjoxNjc1NDE0MjY1fQ.cKQhxgSFmctN-2V54keulz-yRHetuQW0r80mgC28RXE"
+  }
+}

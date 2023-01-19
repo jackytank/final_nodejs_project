@@ -5,6 +5,10 @@ import Big from 'big.js';
 import crypto from 'crypto';
 import _ from 'lodash';
 import { generate } from 'generate-password';
+import path from 'path';
+import jsonfile from 'jsonfile';
+import * as fs from 'fs';
+
 
 /**
  * Format date
@@ -206,9 +210,12 @@ export type HashedData = {
     content: string;
 };
 
-export const encrypt_aes_256 = (text: string): HashedData => {
+const algo = 'aes-256-cbc';
+const key = 'vOVH6sdmpNWjRRIqCc7rdxs01lwHzfr3';
+
+export const encrypt = (text: string) => {
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-ccm', process.env.ENCRYPTION_SECRET as string, iv);
+    const cipher = crypto.createCipheriv(algo, key, iv);
     const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
     return {
         iv: iv.toString('hex'),
@@ -216,14 +223,36 @@ export const encrypt_aes_256 = (text: string): HashedData => {
     };
 };
 
-export const decrypt_aes_256 = (hash: HashedData) => {
-    if (hash) {
-        const decipher = crypto.createDecipheriv('aes-256-ccm', process.env.ENCRYPTION_SECRET as string, Buffer.from(hash?.iv, 'hex'));
-        const decrypted = Buffer.concat([decipher.update(Buffer.from(hash?.content, 'hex')), decipher.final()]);
-        return decrypted.toString();
+export const decrypt = (hash: HashedData) => {
+    if (hash?.iv && hash?.content) {
+        const decipher = crypto.createDecipheriv(algo, key, Buffer.from(hash.iv, 'hex'));
+        const decrpyted = Buffer.concat([decipher.update(Buffer.from(hash.content, 'hex')), decipher.final()]);
+        return decrpyted.toString();
     }
-    return undefined;
+    return null;
 };
+
+const json_path = path.join(__dirname, '../../db/db.json');
+
+export const readJsonDB = async () => {
+    let json;
+    fs.readFile(json_path, (err, data) => {
+        if (err) console.error(err);
+        json = JSON.parse(data as unknown as string);
+        console.log('read db.json done: ');
+        console.dir(json);
+    });
+    return json;
+};
+
+export const writeJsonDB = async (obj: any) => {
+    const data = JSON.stringify(obj, null, 2);
+    fs.writeFile(json_path, data, 'utf-8', (err) => {
+        if (err) console.error(err);
+        console.info('write to db.json success!!');
+    });
+};
+
 
 
 // tri - my own custom functions - END
