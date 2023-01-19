@@ -130,19 +130,19 @@ $(function () {
                 {
                     data: 'Created Date',
                     render: function (data, type, row, meta) {
-                        return data ? dayjs(data).format('MM/DD/YYYY') : '';
+                        return data ? dayjs(data).format('YYYY/MM/DD') : '';
                     },
                 },
                 {
                     data: 'Updated Date',
                     render: function (data, type, row, meta) {
-                        return data ? dayjs(data).format('MM/DD/YYYY') : '';
+                        return data ? dayjs(data).format('YYYY/MM/DD') : '';
                     },
                 },
                 {
                     data: 'Deleted Date',
                     render: function (data, type, row, meta) {
-                        return data ? dayjs(data).format('MM/DD/YYYY') : '';
+                        return data ? dayjs(data).format('YYYY/MM/DD') : '';
                     },
                 },
             ],

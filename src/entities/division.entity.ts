@@ -27,18 +27,18 @@ export class Division extends Base {
             return '';
         }
     })
-    @IsAll1Bytes({
-        message: messages.ECL004('Division Name')
-    })
+    // @IsAll1Bytes({
+    //     message: messages.ECL004('Division Name')
+    // })
     @IsNotEmpty({
         message: messages.ECL001('Division Name')
     })
     name!: string;
 
     @Column({ name: 'note', type: "text", nullable: true })
-    @IsAll1Bytes({
-        message: messages.ECL004('Division Note')
-    })
+    // @IsAll1Bytes({
+    //     message: messages.ECL004('Division Note')
+    // })
     note!: string;
 
     @Column({ name: 'division_leader_id', type: 'bigint', nullable: false })
