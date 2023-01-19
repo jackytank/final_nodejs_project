@@ -67,33 +67,51 @@ export class DivisionService {
      */
     async readCsvData(filePath: string, parser: csv.Parser): Promise<{ data: unknown[], status: number; }> {
         const result: { data: unknown[], status: number; } = {
-            data: [], status: 500
+            data: [], status: 400
         };
         try {
+            // check if csv data records only contains double quotes ""
+            let isALlDQuote = true;
+            const data = fs.readFileSync(filePath, 'utf8');
+            const arr = data.split(/\r?\n/).filter((row) => row !== ''); // remove the first element of array (headers)
+            arr.some((record: string, index: number) => {
+                if (!record.includes('"') && index !== 0) {
+                    isALlDQuote = false;
+                    return true;
+                }
+            });
+            if (!isALlDQuote) {
+                return result;
+            }
             await new Promise((resolve, reject) =>
                 fs.createReadStream(filePath)
                     .pipe(parser)
-                    .on('data', row => {
+                    .on('data', (row) => {
+                        if (row === '') {
+                            reject(row);
+                        }
                         result.data.push(row);
                     })
-                    .on('error', err => {
+                    .on('error', (err) => {
                         reject(err);
                     })
                     .on('end', () => {
-                        // xóa file csv sau khi đã đọc xong
-                        fs.unlink(filePath, err => {
-                            if (err) {
-                                console.error(err);
-                                return;
-                            }
-                        });
                         result.status = 200;
                         resolve(result);
                     }),
             );
             return result;
         } catch (error) {
+            result.status = 500;
             return result;
+        } finally {
+            // delete the file after done reading it
+            fs.unlink(filePath, err => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+            });
         }
     }
 
