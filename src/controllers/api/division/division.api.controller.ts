@@ -61,6 +61,7 @@ class DivisionApiController {
         await queryRunner.connect();
         await queryRunner.startTransaction();
         const msgObj: CustomEntityApiResult<Division> = { messages: [], status: 500 };
+        const headers = ['ID', 'Division Name', 'Division Note', 'Division Leader', 'Floor Number', 'Delete'];
         try {
             if (req.file == undefined || req.file.mimetype !== 'text/csv') {
                 fs.unlink(req.file?.path as string, err => {
@@ -77,14 +78,29 @@ class DivisionApiController {
             const parser = csv.parse({
                 delimiter: ',', // phân cách giữa các cell trong mỗi row
                 trim: true, // bỏ các khoảng trắng ở đầu và cuối của mỗi cell
-                skip_empty_lines: true, // bỏ qua các dòng trống
+                skip_empty_lines: false, // bỏ qua các dòng trống
                 columns: true, // gán header cho từng column trong row
             });
             const csvResult = await this.divService.readCsvData(req.file.path, parser);
-            if (csvResult.status === 500) {
-                return res.status(csvResult.status).json({ message: messages.ECL095 });
+            let isFileValid = true;
+            if (csvResult.status !== 200) {
+                isFileValid = false;
             }
             if (csvResult.data.length === 0) {
+                isFileValid = false;
+            }
+            if (csvResult.data.length !== 0) {
+                const firstRow = csvResult.data[0];
+                const firstHeaders = Object.keys(firstRow as object);
+                const diff = headers.filter((h) => !firstHeaders.includes(h)); // find diff using ES6 instead _.difference()
+                if (firstHeaders.length !== headers.length) {
+                    isFileValid = false;
+                }
+                if (diff.length !== 0) {
+                    isFileValid = false;
+                }
+            }
+            if (!isFileValid) {
                 return res.status(400).json({ message: messages.ECL095 });
             }
             const divIdRecords = csvResult.data.filter((record: CustomDivisionData) => record['ID'] !== '').map((record: CustomDivisionData) => record['ID']);
