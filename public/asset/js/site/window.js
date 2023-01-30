@@ -41,5 +41,25 @@ $(function () {
     evt.stopPropagation();
     $("body").toggleClass("menuon");
   });
+
+  const getToken = () => {
+    return window.localStorage.getItem('token');
+  };
+
+  const setupAuth = () => {
+    $(document).ajaxSend(function (event, jqXhr) {
+      const token = getToken();
+      jqXhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    });
+  };
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    console.log(value);
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  console.log(getCookie('banhqui_antoan'));
 });
 

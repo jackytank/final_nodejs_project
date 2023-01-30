@@ -113,6 +113,10 @@ $(function () {
                     // "eager" validation
                     this.element(element);
                 },
+                onkeyup: function (element) {
+                    // "eager" validation
+                    this.element(element);
+                },
                 errorElement: 'span',
                 errorClass: 'has-error',
                 highlight: function (element, errorClass) {
@@ -208,6 +212,10 @@ $(function () {
             });
             formElement.validate({
                 onfocusout: function (element) {
+                    // "eager" validation
+                    this.element(element);
+                },
+                onkeyup: function (element) {
                     // "eager" validation
                     this.element(element);
                 },

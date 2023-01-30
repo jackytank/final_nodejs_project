@@ -1,13 +1,15 @@
+import jwt from 'jsonwebtoken';
 import { CustomUserData } from './../customTypings/express/index';
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import moment from 'moment-timezone';
 import Big from 'big.js';
 import crypto from 'crypto';
 import _ from 'lodash';
 import { generate } from 'generate-password';
 import path from 'path';
-import jsonfile from 'jsonfile';
 import * as fs from 'fs';
+import * as configEnv from 'dotenv';
+
+configEnv.config();
 
 
 /**
@@ -232,26 +234,25 @@ export const decrypt = (hash: HashedData) => {
     return null;
 };
 
-const json_path = path.join(__dirname, '../../db/db.json');
-
-export const readJsonDB = async () => {
-    let json;
-    fs.readFile(json_path, (err, data) => {
-        if (err) console.error(err);
-        json = JSON.parse(data as unknown as string);
-        console.log('read db.json done: ');
-        console.dir(json);
+export const generate_access_token = (payload: object): string => {
+    const access_token_expire = parseInt(process.env.TOKEN_EXPIRE as string); // 30 mins on prod, 5 secs to test
+    const access_token = jwt.sign({ payload }, process.env.TOKEN_SECRET as string, {
+        expiresIn: access_token_expire
     });
-    return json;
+    return access_token;
 };
 
-export const writeJsonDB = async (obj: any) => {
-    const data = JSON.stringify(obj, null, 2);
-    fs.writeFile(json_path, data, 'utf-8', (err) => {
-        if (err) console.error(err);
-        console.info('write to db.json success!!');
+export const generate_refresh_token = (payload: object): string => {
+    const refresh_token_expire = parseInt(process.env.REFRESH_EXPIRE as string); // 7 days
+    const refresh_token = jwt.sign({ payload }, process.env.REFRESH_SECRET as string, {
+        expiresIn: refresh_token_expire
     });
+    return refresh_token;
 };
+
+
+
+
 
 
 

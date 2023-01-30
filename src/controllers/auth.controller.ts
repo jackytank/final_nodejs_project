@@ -1,16 +1,17 @@
-import { writeJsonDB, readJsonDB } from './../utils/common';
 /**
  * Login controller
 */
 import jwt from 'jsonwebtoken';
+import { generate_refresh_token } from './../utils/common';
 import * as logger from '../utils/logger';
 import { Request, Response } from 'express';
 import { UserService } from '../services/user/user.service';
 import { messages } from '../constants';
 import { User } from '../entities/user.entity';
+import { encrypt, generate_access_token } from '../utils/common';
+import { CustomBanhQui } from '../customTypings/express';
 import * as configEnv from 'dotenv';
-import { encrypt } from '../utils/common';
-import { memDB } from '../middlewares/authentication';
+import { jwt_mem_db } from '../utils/jwt-utils';
 
 configEnv.config();
 
@@ -76,11 +77,7 @@ export const auth = async (req: Request, res: Response) => {
 /**
  * This func auth_with_jwt is for research jwt purposes, use above func auth whenever possible.
  */
-export interface CustomBanhQui {
-    user: Record<string, unknown>,
-    access_token: string,
-    refresh_token: string;
-}
+
 
 export const auth_with_jwt = async (req: Request, res: Response) => {
     const { redirect } = req.query;
@@ -98,16 +95,9 @@ export const auth_with_jwt = async (req: Request, res: Response) => {
             });
         }
         if (user) {
-            const access_token_expire = parseInt(process.env.TOKEN_EXPIRE as string); // 30 mins
-            const refresh_token_expire = parseInt(process.env.REFRESH_EXPIRE as string); // 15 days
-
             // signing access and refresh tokens
-            const access_token = jwt.sign({ email }, process.env.TOKEN_SECRET as string, {
-                expiresIn: access_token_expire
-            });
-            const refresh_token = jwt.sign({ email }, process.env.REFRESH_SECRET as string, {
-                expiresIn: refresh_token_expire
-            });
+            const access_token = generate_access_token(user);
+            const refresh_token = generate_refresh_token(user);
             // create object to return user, access and refresh tokens info
             req.user.isAuthorized = true;
             const to_return: CustomBanhQui = {
@@ -115,16 +105,17 @@ export const auth_with_jwt = async (req: Request, res: Response) => {
                     ...(({ id, name, email, position_id }) => ({ id, name, email, position_id }))(user),
                 },
                 access_token: access_token,
-                refresh_token: refresh_token
             };
-            memDB.push(to_return.refresh_token);
-            const test = memDB;
+            jwt_mem_db.add({
+                "user_id": user.id,
+                "refresh_token": refresh_token
+            });
             const encrypted_to_return = encrypt(JSON.stringify(to_return));
             res.cookie('banhqui_antoan', JSON.stringify(encrypted_to_return), {
                 secure: true,
-                httpOnly: true, // to prevent XSS attacks
+                httpOnly: true, // Cookies are vulnerable to XSS attacks. Hackers can read the info in cookies through JS scripts. To prevent, you can set the cookie’s property to HttpOnly
                 signed: true,
-                sameSite: 'strict'
+                sameSite: 'strict' // Cookies are vulnerable to CSRF attacks => set SameSite to Strict
             });
             logger.logInfo(req, `User id(${user!.id}) logged in successfully.`);
             if (redirect !== undefined && redirect.length! > 0 && redirect !== '/') {

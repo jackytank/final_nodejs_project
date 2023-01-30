@@ -110,3 +110,14 @@ export type FileNameCallback = (error: Error | string | string[] | null, filenam
 export interface Data {
     [key: string]: string;
 }
+
+export interface MemDBType {
+    "user_id": string | number,
+    "refresh_token": string
+}
+
+export interface CustomBanhQui {
+    user: Record<string, unknown>,
+    access_token: string,
+    refresh_token?: string;
+}
