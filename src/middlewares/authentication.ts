@@ -57,8 +57,6 @@ export const authentication_jwt = async (req: Request, res: Response, next: Next
         if (err) {
             is_ok = false;
             if (err.name === 'TokenExpiredError') {
-                console.log('1. Access Token expire!');
-                console.log('2. Begin checking refresh token...');
                 const refresh_token = get_refresh_by_user_id(banhqui.user.id as number);
                 is_ok = check_refresh_valid(refresh_token);
                 if (!is_ok && refresh_token) {

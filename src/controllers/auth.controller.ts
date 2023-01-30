@@ -151,3 +151,45 @@ export const logout = async (req: Request, res: Response) => {
     res.redirect(redirectURL);
 };
 
+
+
+
+// const isvalid = checkExpire(access_token)
+// if(!isvalid){
+//         fetch('/refresh-token').then((res)=>{
+
+// fetch('/user/list').then((res)=>{
+//     if(res === 401){
+
+//     }
+// })
+//         })
+// }
+
+// const accessToken = localStorage('accessToken')
+
+// function getAccessTokenSilenlty() {
+//     const payload = jwt.decoded(accessToken)
+//     if(exp < now) {
+//         return accessToken;
+//     }
+
+//             fetch('/refresh-token').then((res)=>{
+// setLocal
+// //
+// return res.accessToken
+
+//             }).catch()
+// }
+
+
+// const token = await getAccessTokenSilenlty()
+
+// if() {
+
+//     se4 bi loi
+// }
+
+// fetch('/user/list').then((res)=>{
+  
+// })
